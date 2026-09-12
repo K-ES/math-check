@@ -32,11 +32,11 @@
   <main id="app" aria-live="polite"></main>
   <script>
     const questions = [
-      { text: '3 + 3 = ?', options: ['5', '6', '7', '8'], correct: '6' },
-      { text: '12 − 5 = ?', options: ['6', '7', '8', '9'], correct: '7' },
-      { text: '4 × 3 = ?', options: ['7', '10', '12', '14'], correct: '12' },
-      { text: '16 ÷ 4 = ?', options: ['2', '3', '4', '5'], correct: '4' },
-      { text: '9 + 8 = ?', options: ['16', '17', '18', '19'], correct: '17' }
+      { text: 'Чему равен дискриминант уравнения x² − 5x + 6 = 0?', options: ['1', '5', '25', '49'], correct: '1' },
+      { text: 'Сколько корней имеет квадратное уравнение, если D < 0?', options: ['0', '1', '2', 'Бесконечно много'], correct: '0' },
+      { text: 'Какие корни уравнения x² − 9 = 0?', options: ['−3 и 3', '0 и 9', '3 и 6', '−9 и 9'], correct: '−3 и 3' },
+      { text: 'Какой формулой считают дискриминант ax² + bx + c = 0?', options: ['b² − 4ac', 'a² − 4bc', '2a + b', 'c² − ab'], correct: 'b² − 4ac' },
+      { text: 'Если D = 0, сколько разных корней у квадратного уравнения?', options: ['0', '1', '2', '3'], correct: '1' }
     ];
     const app = document.querySelector('#app');
     let currentQuestion = 0;
@@ -47,7 +47,7 @@
       app.innerHTML = `
         <section class="card">
           <p class="progress">Вопрос ${currentQuestion + 1} из ${questions.length}</p>
-          <h1>Проверка математики 🧮</h1>
+          <h1>Квадратные уравнения</h1>
           <p class="question">${question.text}</p>
           <div class="answers">
             ${question.options.map(option => `<button type="button" data-answer="${option}">${option}</button>`).join('')}
