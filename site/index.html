@@ -13,6 +13,7 @@
     .progress { color: #64748b; font-size: .95rem; margin: 0 0 18px; }
     h1 { margin: 0 0 16px; font-size: clamp(1.8rem, 5vw, 2.5rem); }
     .question { margin: 0 0 28px; font-size: clamp(1.35rem, 4vw, 1.8rem); }
+    .equation { display: block; margin-top: 10px; font-weight: 700; }
     .answers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
     button { border: 0; border-radius: 12px; background: #e9efff; color: #173b8c; cursor: pointer; font-size: 1.15rem; font-weight: 700; padding: 17px; transition: background .2s, transform .2s; }
     button:hover, button:focus-visible { background: #ccdafe; transform: translateY(-2px); }
@@ -32,12 +33,17 @@
   <main id="app" aria-live="polite"></main>
   <script>
     const questions = [
-      { text: 'Чему равен дискриминант уравнения x² − 5x + 6 = 0?', options: ['1', '5', '25', '49'], correct: '1' },
-      { text: 'Сколько корней имеет квадратное уравнение, если D < 0?', options: ['0', '1', '2', 'Бесконечно много'], correct: '0' },
-      { text: 'Какие корни уравнения x² − 9 = 0?', options: ['−3 и 3', '0 и 9', '3 и 6', '−9 и 9'], correct: '−3 и 3' },
-      { text: 'Какой формулой считают дискриминант ax² + bx + c = 0?', options: ['b² − 4ac', 'a² − 4bc', '2a + b', 'c² − ab'], correct: 'b² − 4ac' },
-      { text: 'Если D = 0, сколько разных корней у квадратного уравнения?', options: ['0', '1', '2', '3'], correct: '1' }
+      { text: 'Чему равен дискриминант уравнения', equation: 'x² − 5x + 6 = 0?', options: ['1', '5', '25', '49'], correct: '1' },
+      { text: 'Сколько корней имеет квадратное уравнение, если', equation: 'D < 0?', options: ['0', '1', '2', 'Бесконечно много'], correct: '0' },
+      { text: 'Какие корни уравнения', equation: 'x² − 9 = 0?', options: ['−3 и 3', '0 и 9', '3 и 6', '−9 и 9'], correct: '−3 и 3' },
+      { text: 'Какой формулой считают дискриминант', equation: 'ax² + bx + c = 0?', options: ['b² − 4ac', 'a² − 4bc', '2a + b', 'c² − ab'], correct: 'b² − 4ac' },
+      { text: 'Сколько разных корней у квадратного уравнения, если', equation: 'D = 0?', options: ['0', '1', '2', '3'], correct: '1' }
     ];
+    function formatQuestion(question) {
+      return question.equation
+        ? `${question.text}<span class="equation">${question.equation}</span>`
+        : question.text;
+    }
     const app = document.querySelector('#app');
     let currentQuestion = 0;
     let answers = [];
@@ -48,7 +54,7 @@
         <section class="card">
           <p class="progress">Вопрос ${currentQuestion + 1} из ${questions.length}</p>
           <h1>Квадратные уравнения</h1>
-          <p class="question">${question.text}</p>
+          <p class="question">${formatQuestion(question)}</p>
           <div class="answers">
             ${question.options.map(option => `<button type="button" data-answer="${option}">${option}</button>`).join('')}
           </div>
@@ -74,7 +80,7 @@
             ${questions.map((question, index) => {
               const isCorrect = answers[index] === question.correct;
               return `<article class="result ${isCorrect ? 'correct' : 'incorrect'}">
-                <p><strong>${index + 1}. ${question.text}</strong></p>
+                <p><strong>${index + 1}. ${formatQuestion(question)}</strong></p>
                 <p>Ваш ответ: ${answers[index]}. Правильный ответ: ${question.correct}.</p>
               </article>`;
             }).join('')}
