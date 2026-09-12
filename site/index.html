@@ -14,6 +14,10 @@
     h1 { margin: 0 0 16px; font-size: clamp(1.8rem, 5vw, 2.5rem); }
     .question { margin: 0 0 28px; font-size: clamp(1.35rem, 4vw, 1.8rem); background: #f0fdf4; border-radius: 12px; padding: 18px 16px; }
     .equation { display: block; margin-top: 10px; font-weight: 700; }
+    .tag { display: inline-block; margin: 0 0 12px; padding: 4px 12px; border-radius: 999px; font-size: .8rem; font-weight: 700; background: #e9efff; color: #173b8c; }
+    .tag-dota { background: #fee2e2; color: #b91c1c; }
+    .question-image { display: block; width: 100%; max-width: 280px; height: auto; margin: 14px auto 0; border-radius: 12px; background: #0f172a; }
+    .result-thumb { display: block; margin-top: 8px; max-width: 120px; height: auto; border-radius: 8px; }
     .answers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
     button { border: 0; border-radius: 12px; background: #e9efff; color: #173b8c; cursor: pointer; font-size: 1.15rem; font-weight: 700; padding: 17px; transition: background .2s, transform .2s; }
     button:hover, button:focus-visible { background: #ccdafe; transform: translateY(-2px); }
@@ -36,22 +40,27 @@
       { text: 'Чему равен дискриминант уравнения', equation: 'x² − 5x + 6 = 0?', options: ['1', '5', '25', '49'], correct: '1' },
       { text: 'Сколько корней имеет квадратное уравнение, если', equation: 'D < 0?', options: ['0', '1', '2', 'Бесконечно много'], correct: '0' },
       { text: 'Какие корни уравнения', equation: 'x² − 9 = 0?', options: ['−3 и 3', '0 и 9', '3 и 6', '−9 и 9'], correct: '−3 и 3' },
-      { text: 'Какой формулой считают дискриминант', equation: 'ax² + bx + c = 0?', options: ['b² − 4ac', 'a² − 4bc', '2a + b', 'c² − ab'], correct: 'b² − 4ac' },
+      { text: 'Какой герой изображён на картинке?', image: 'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/pudge.png', imageAlt: 'Герой Dota 2', options: ['Pudge', 'Invoker', 'Axe', 'Juggernaut'], correct: 'Pudge' },
       { text: 'Сколько разных корней у квадратного уравнения, если', equation: 'D = 0?', options: ['0', '1', '2', '3'], correct: '1' },
       { text: 'Чему равен дискриминант уравнения', equation: 'x² + 4x + 4 = 0?', options: ['0', '8', '16', '32'], correct: '0' },
       { text: 'Какие корни уравнения', equation: 'x² − 5x + 6 = 0?', options: ['2 и 3', '−2 и −3', '1 и 6', '−1 и −6'], correct: '2 и 3' },
-      { text: 'Чему равна сумма корней уравнения', equation: 'x² − 5x + 6 = 0?', options: ['5', '−5', '6', '−6'], correct: '5' },
+      { text: 'Что делает предмет на картинке?', image: 'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/blink.png', imageAlt: 'Предмет Blink Dagger', options: ['Телепортирует героя на короткую дистанцию', 'Даёт невидимость', 'Лечит 500 HP', 'Даёт иммунитет к магии'], correct: 'Телепортирует героя на короткую дистанцию' },
       { text: 'Чему равно произведение корней уравнения', equation: 'x² − 5x + 6 = 0?', options: ['6', '−6', '5', '−5'], correct: '6' },
       { text: 'Какие корни уравнения', equation: 'x² − 4x = 0?', options: ['0 и 4', '0 и −4', '2 и 2', '−2 и 2'], correct: '0 и 4' },
       { text: 'Какие корни уравнения', equation: 'x² − 25 = 0?', options: ['−5 и 5', '0 и 5', '−25 и 25', '5 и 10'], correct: '−5 и 5' },
-      { text: 'Чему равен дискриминант уравнения', equation: '2x² + 3x + 1 = 0?', options: ['1', '9', '17', '−1'], correct: '1' },
+      { text: 'Угадай героя по картинке', image: 'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/juggernaut.png', imageAlt: 'Герой Dota 2', options: ['Juggernaut', 'Axe', 'Sven', 'Phantom Assassin'], correct: 'Juggernaut' },
       { text: 'Какие корни уравнения', equation: '2x² + 3x + 1 = 0?', options: ['−1 и −0,5', '1 и 0,5', '−2 и −1', '0 и −1'], correct: '−1 и −0,5' },
       { text: 'Чему равен старший коэффициент уравнения', equation: '3x² − 2x + 1 = 0?', options: ['3', '−2', '1', '0'], correct: '3' },
       { text: 'Чему равен свободный член уравнения', equation: '3x² − 2x + 1 = 0?', options: ['1', '3', '−2', '0'], correct: '1' },
-      { text: 'Чему равен дискриминант уравнения', equation: 'x² − 2x − 3 = 0?', options: ['16', '4', '−8', '8'], correct: '16' },
+      { text: 'Кто изображён на картинке?', image: 'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/invoker.png', imageAlt: 'Герой Dota 2', options: ['Invoker', 'Zeus', 'Lina', 'Rubick'], correct: 'Invoker' },
       { text: 'Какие корни уравнения', equation: 'x² − 2x − 3 = 0?', options: ['3 и −1', '−3 и 1', '−3 и −1', '1 и 3'], correct: '3 и −1' },
       { text: 'По теореме Виета сумма корней приведённого уравнения', equation: 'x² + px + q = 0 равна?', options: ['−p', 'p', 'q', '−q'], correct: '−p' },
       { text: 'По теореме Виета произведение корней приведённого уравнения', equation: 'x² + px + q = 0 равно?', options: ['q', '−q', 'p', '−p'], correct: 'q' },
+      { text: 'Что даёт предмет на картинке?', image: 'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/black_king_bar.png', imageAlt: 'Предмет Black King Bar', options: ['Невосприимчивость к большинству заклинаний', 'Телепортацию', 'Невидимость', 'Возрождение'], correct: 'Невосприимчивость к большинству заклинаний' },
+      { text: 'Какой формулой считают дискриминант', equation: 'ax² + bx + c = 0?', options: ['b² − 4ac', 'a² − 4bc', '2a + b', 'c² − ab'], correct: 'b² − 4ac' },
+      { text: 'Чему равна сумма корней уравнения', equation: 'x² − 5x + 6 = 0?', options: ['5', '−5', '6', '−6'], correct: '5' },
+      { text: 'Чему равен дискриминант уравнения', equation: '2x² + 3x + 1 = 0?', options: ['1', '9', '17', '−1'], correct: '1' },
+      { text: 'Чему равен дискриминант уравнения', equation: 'x² − 2x − 3 = 0?', options: ['16', '4', '−8', '8'], correct: '16' },
       { text: 'Сколько корней имеет квадратное уравнение, если', equation: 'D > 0?', options: ['2', '1', '0', '3'], correct: '2' }
     ];
     function formatQuestion(question) {
@@ -59,6 +68,12 @@
         ? `${question.text}<span class="equation">${question.equation}</span>`
         : question.text;
     }
+    function questionImage(question, cls) {
+      return question.image
+        ? `<img class="${cls}" src="${question.image}" alt="${question.imageAlt || 'Картинка к вопросу'}" loading="lazy">`
+        : '';
+    }
+    function isDota(question) { return Boolean(question.image); }
     const app = document.querySelector('#app');
     let currentQuestion = 0;
     let answers = [];
@@ -68,8 +83,9 @@
       app.innerHTML = `
         <section class="card">
           <p class="progress">Вопрос ${currentQuestion + 1} из ${questions.length}</p>
-          <h1>Квадратные уравнения</h1>
-          <p class="question">${formatQuestion(question)}</p>
+          <h1>${isDota(question) ? 'Dota 2' : 'Квадратные уравнения'}</h1>
+          <p style="margin: 0 0 16px;"><span class="tag ${isDota(question) ? 'tag-dota' : ''}">${isDota(question) ? 'DOTA 2' : 'МАТЕМАТИКА'}</span></p>
+          <p class="question">${formatQuestion(question)}${questionImage(question, 'question-image')}</p>
           <div class="answers">
             ${question.options.map(option => `<button type="button" data-answer="${option}">${option}</button>`).join('')}
           </div>
@@ -95,7 +111,7 @@
             ${questions.map((question, index) => {
               const isCorrect = answers[index] === question.correct;
               return `<article class="result ${isCorrect ? 'correct' : 'incorrect'}">
-                <p><strong>${index + 1}. ${formatQuestion(question)}</strong></p>
+                <p><strong>${index + 1}. ${formatQuestion(question)}</strong>${questionImage(question, 'result-thumb')}</p>
                 <p>Ваш ответ: ${answers[index]}. Правильный ответ: ${question.correct}.</p>
               </article>`;
             }).join('')}
