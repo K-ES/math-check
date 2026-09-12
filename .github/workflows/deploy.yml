@@ -22,5 +22,5 @@ jobs:
           password: ${{ secrets.BEGET_PASSWORD }}
           port: 22
           local_path: './site/*'
-          remote_path: './math-check/public_html'
+          remote_path: './public_html'
           sftp_only: true
