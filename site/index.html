@@ -1,16 +1,91 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <title>Проверка математики</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Проверка математики</title>
+  <style>
+    :root { font-family: Arial, sans-serif; color: #172033; background: #f4f7fb; }
+    * { box-sizing: border-box; }
+    body { min-height: 100vh; margin: 0; display: grid; place-items: center; padding: 24px; }
+    main { width: min(100%, 620px); text-align: center; }
+    .card { background: #fff; border-radius: 20px; box-shadow: 0 12px 36px rgba(28, 46, 82, .14); padding: 42px 32px; }
+    .progress { color: #64748b; font-size: .95rem; margin: 0 0 18px; }
+    h1 { margin: 0 0 16px; font-size: clamp(1.8rem, 5vw, 2.5rem); }
+    .question { margin: 0 0 28px; font-size: clamp(1.35rem, 4vw, 1.8rem); }
+    .answers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    button { border: 0; border-radius: 12px; background: #e9efff; color: #173b8c; cursor: pointer; font-size: 1.15rem; font-weight: 700; padding: 17px; transition: background .2s, transform .2s; }
+    button:hover, button:focus-visible { background: #ccdafe; transform: translateY(-2px); }
+    button:focus-visible { outline: 3px solid #5d8eff; outline-offset: 2px; }
+    .result-list { display: grid; gap: 12px; text-align: left; }
+    .result { border-radius: 12px; padding: 14px 16px; font-size: 1rem; line-height: 1.45; }
+    .correct { background: #dcfce7; color: #166534; }
+    .incorrect { background: #fee2e2; color: #b91c1c; }
+    .result p { margin: 0; }
+    .score { font-size: 1.2rem; margin: 0 0 24px; }
+    .restart { margin-top: 26px; background: #2563eb; color: #fff; }
+    .restart:hover, .restart:focus-visible { background: #1d4ed8; }
+    @media (max-width: 420px) { .card { padding: 30px 20px; } .answers { grid-template-columns: 1fr; } }
+  </style>
 </head>
 <body>
+  <main id="app" aria-live="polite"></main>
+  <script>
+    const questions = [
+      { text: '3 + 3 = ?', options: ['5', '6', '7', '8'], correct: '6' },
+      { text: '12 − 5 = ?', options: ['6', '7', '8', '9'], correct: '7' },
+      { text: '4 × 3 = ?', options: ['7', '10', '12', '14'], correct: '12' },
+      { text: '16 ÷ 4 = ?', options: ['2', '3', '4', '5'], correct: '4' },
+      { text: '9 + 8 = ?', options: ['16', '17', '18', '19'], correct: '17' }
+    ];
+    const app = document.querySelector('#app');
+    let currentQuestion = 0;
+    let answers = [];
 
-<h1>Проверка математики 🧮</h1>
-<p>3 + 3 = ? 🤓</p>
+    function showQuestion() {
+      const question = questions[currentQuestion];
+      app.innerHTML = `
+        <section class="card">
+          <p class="progress">Вопрос ${currentQuestion + 1} из ${questions.length}</p>
+          <h1>Проверка математики 🧮</h1>
+          <p class="question">${question.text}</p>
+          <div class="answers">
+            ${question.options.map(option => `<button type="button" data-answer="${option}">${option}</button>`).join('')}
+          </div>
+        </section>`;
+      app.querySelectorAll('[data-answer]').forEach(button => {
+        button.addEventListener('click', () => chooseAnswer(button.dataset.answer));
+      });
+    }
 
-<button onclick="alert('Правильно!')">6</button>
-<button onclick="alert('Неправильно 😄')">7</button>
+    function chooseAnswer(answer) {
+      answers.push(answer);
+      currentQuestion += 1;
+      currentQuestion < questions.length ? showQuestion() : showResults();
+    }
 
+    function showResults() {
+      const correctCount = answers.filter((answer, index) => answer === questions[index].correct).length;
+      app.innerHTML = `
+        <section class="card">
+          <h1>Результат</h1>
+          <p class="score">Правильных ответов: ${correctCount} из ${questions.length}</p>
+          <div class="result-list">
+            ${questions.map((question, index) => {
+              const isCorrect = answers[index] === question.correct;
+              return `<article class="result ${isCorrect ? 'correct' : 'incorrect'}">
+                <p><strong>${index + 1}. ${question.text}</strong></p>
+                <p>Ваш ответ: ${answers[index]}. Правильный ответ: ${question.correct}.</p>
+              </article>`;
+            }).join('')}
+          </div>
+          <button class="restart" type="button">Пройти ещё раз</button>
+        </section>`;
+      app.querySelector('.restart').addEventListener('click', restart);
+    }
+
+    function restart() { currentQuestion = 0; answers = []; showQuestion(); }
+    showQuestion();
+  </script>
 </body>
 </html>
