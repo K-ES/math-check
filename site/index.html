@@ -58,7 +58,26 @@
     .btn-primary:hover, .btn-primary:focus-visible { background: #1d4ed8; }
     .to-start { margin-top: 14px; width: 100%; background: transparent; color: #64748b; font-size: .95rem; font-weight: 400; padding: 10px; }
     .to-start:hover, .to-start:focus-visible { background: #f1f5f9; transform: none; }
-    @media (max-width: 420px) { .card { padding: 30px 20px; } .answers { grid-template-columns: 1fr; } .nav { flex-direction: column; } }
+    .pic { background: #fff; border: 2px dashed #cbd5e1; border-radius: 12px; padding: 14px; margin: 0 0 14px; }
+    .pic-caption { font-size: .9rem; color: #64748b; text-align: center; margin: 8px 0 0; }
+    .bar-row { margin: 10px 0; text-align: left; font-size: .95rem; }
+    .bar-label { font-weight: 700; margin-bottom: 4px; }
+    .bar-track { background: #e2e8f0; border-radius: 8px; overflow: hidden; display: flex; height: 30px; }
+    .bar-fill { display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: .85rem; white-space: nowrap; }
+    .bar-blue { background: #3b82f6; }
+    .bar-green { background: #22c55e; }
+    .bar-orange { background: #f59e0b; }
+    .bar-red { background: #ef4444; }
+    .bar-grey { background: #cbd5e1; color: #64748b; }
+    .formula-pic { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; font-weight: 700; font-size: 1rem; }
+    .chip { background: #eef2ff; border-radius: 10px; padding: 10px 12px; text-align: center; }
+    .chip small { display: block; font-weight: 400; color: #64748b; margin-top: 4px; }
+    .chip-green { background: #dcfce7; }
+    .chip-yellow { background: #fef9c3; }
+    .vs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .vs-col { border-radius: 10px; padding: 10px; background: #f8fafc; text-align: center; font-size: .95rem; line-height: 1.5; }
+    .vs-col b { display: block; margin-bottom: 4px; }
+    @media (max-width: 420px) { .card { padding: 30px 20px; } .answers { grid-template-columns: 1fr; } .nav { flex-direction: column; } .vs-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
@@ -98,36 +117,42 @@
       {
         title: 'Шаг 1. Что значит «выросла на 40%»?',
         theory: `<p>Процент — это сотая часть. 100% — это всё, что было вначале.</p><p>Если цена <b>выросла на 40%</b>, значит к старым 100% добавили ещё 40%. Стало 140%.</p><p>Чтобы найти новое число, старое умножаем на 1,4:</p><span class="formula">новое = старое × 1,4</span><p style="margin-top:10px">Пример: билет стоил 100 рублей. 100 × 1,4 = 140 рублей.</p>`,
+        pic: `<div class="bar-row"><div class="bar-label">Было: 100% = 200 руб.</div><div class="bar-track"><div class="bar-fill bar-blue" style="width:71%">100%</div></div></div><div class="bar-row"><div class="bar-label">Стало: 140% = 280 руб.</div><div class="bar-track"><div class="bar-fill bar-blue" style="width:71%">100%</div><div class="bar-fill bar-orange" style="width:29%">+40%</div></div></div><p class="pic-caption">Синяя часть — старая цена, оранжевая — добавка 40%</p>`,
         task: 'Билет стоил 200 рублей. Цена выросла на 40%. Сколько стал стоить билет?',
         answer: '200 × 1,4 = <b>280 рублей</b>.'
       },
       {
         title: 'Шаг 2. Что значит «снизилась на 16%»?',
         theory: `<p>Если что-то <b>снизилось на 16%</b>, от старых 100% осталось 100 − 16 = 84%.</p><p>Чтобы найти новое число, старое умножаем на 0,84:</p><span class="formula">новое = старое × 0,84</span><p style="margin-top:10px">Пример: выручка была 10 000 рублей. 10 000 × 0,84 = 8 400 рублей.</p>`,
+        pic: `<div class="bar-row"><div class="bar-label">Было: 100% = 5 000 руб.</div><div class="bar-track"><div class="bar-fill bar-blue" style="width:100%">100%</div></div></div><div class="bar-row"><div class="bar-label">Стало: 84% = 4 200 руб.</div><div class="bar-track"><div class="bar-fill bar-green" style="width:84%">84% осталось</div><div class="bar-fill bar-grey" style="width:16%">−16%</div></div></div><p class="pic-caption">Зелёное — то, что осталось, серое — то, что пропало (16%)</p>`,
         task: 'Выручка была 5 000 рублей. Она снизилась на 16%. Сколько стала?',
         answer: '5 000 × 0,84 = <b>4 200 рублей</b>.'
       },
       {
         title: 'Шаг 3. Главная формула: выручка',
         theory: `<p><b>Выручка = цена билета × число зрителей.</b></p><p>Пример: билет 100 рублей, пришло 50 зрителей. Выручка = 100 × 50 = 5 000 рублей.</p><p>Если цена выросла, а зрителей столько же — выручка тоже вырастет. Если зрителей стало меньше — выручка упадёт.</p>`,
+        pic: `<div class="formula-pic"><div class="chip">🎟️ Цена<small>руб. за билет</small></div><div>×</div><div class="chip">🧑‍🤝‍🧑 Зрители<small>число людей</small></div><div>=</div><div class="chip chip-green">💰 Выручка<small>все деньги</small></div></div><p class="pic-caption">Пример: 150 руб. × 40 зрителей = 6 000 руб.</p>`,
         task: 'Цена билета 150 рублей, пришло 40 зрителей. Какая выручка?',
         answer: '150 × 40 = <b>6 000 рублей</b>.'
       },
       {
         title: 'Шаг 4. Как найти зрителей?',
         theory: `<p>Из той же формулы получаем:</p><span class="formula">зрители = выручка / цена</span><p style="margin-top:10px">Пример: выручка 8 400 рублей, билет стоит 140 рублей. Зрителей = 8 400 / 140 = 60.</p>`,
+        pic: `<div class="formula-pic"><div class="chip chip-yellow">💰 8 400 руб.<small>выручка</small></div><div>÷</div><div class="chip">🎟️ 140 руб.<small>цена</small></div><div>=</div><div class="chip chip-green">🧑 60<small>зрителей</small></div></div><p class="pic-caption">Делим все деньги на цену одного билета</p>`,
         task: 'Выручка 4 200 рублей, билет стоит 140 рублей. Сколько зрителей пришло?',
         answer: '4 200 / 140 = <b>30 зрителей</b>.'
       },
       {
         title: 'Шаг 5. Разбираем задачу про театр',
         theory: `<p><b>Задача:</b> цена билета выросла на 40%, а выручка снизилась на 16%. На сколько процентов уменьшилось число зрителей?</p><p>Решение по шагам:</p><p>1. Было: цена = Ц, зрителей = З, выручка = В = Ц × З.</p><p>2. Стало: цена = 1,4 × Ц, выручка = 0,84 × В.</p><p>3. Зрителей стало = выручка / цена = (0,84 × В) / (1,4 × Ц) = 0,6 × (В / Ц) = 0,6 × З.</p><p>4. Осталось 60%, значит уменьшилось на 100 − 60 = 40%.</p><p>Проверка на числах: было 100 руб. и 100 зрителей (выручка 10 000). Стало: цена 140 руб., выручка 8 400 руб. Зрителей = 8 400 / 140 = 60. Было 100, стало 60 — меньше на 40%.</p>`,
+        pic: `<div class="vs-grid"><div class="vs-col"><b>🔵 Было</b>🎟️ 100 руб. (100%)<br>🧑 100 зрителей (100%)<br>💰 10 000 руб. (100%)</div><div class="vs-col" style="background:#fef9c3"><b>🟠 Стало</b>🎟️ 140 руб. (+40%)<br>🧑 60 зрителей (−40%)<br>💰 8 400 руб. (−16%)</div></div><div class="bar-row"><div class="bar-label">Зрители: было 100% → стало 60%</div><div class="bar-track"><div class="bar-fill bar-green" style="width:60%">60% осталось</div><div class="bar-fill bar-red" style="width:40%">40% ушло</div></div></div><p class="pic-caption">Цена выросла, а людей пришло так мало, что денег стало меньше</p>`,
         task: 'Итак, на сколько процентов уменьшилось число зрителей?',
         answer: 'На <b>40%</b> (осталось 60% зрителей).'
       },
       {
         title: 'Шаг 6. Проверь себя',
         theory: `<p>Попробуй похожие задачи. Сначала реши сам, потом открой ответ.</p><p>1. Цена выросла на 25%, а выручка не изменилась. На сколько упало число зрителей?</p><p>2. Цена снизилась на 20%, а выручка выросла на 20%. Что стало со зрителями?</p>`,
+        pic: `<div class="bar-row"><div class="bar-label">Задача 1: цена 125%, выручка 100% → зрители 80%</div><div class="bar-track"><div class="bar-fill bar-green" style="width:80%">80% осталось</div><div class="bar-fill bar-grey" style="width:20%">−20%</div></div></div><div class="bar-row"><div class="bar-label">Задача 2: цена 80%, выручка 120% → зрители 150%</div><div class="bar-track"><div class="bar-fill bar-blue" style="width:53%">было 100%</div><div class="bar-fill bar-orange" style="width:33%">+50%</div></div></div><p class="pic-caption">Подсказка-картинка: дели выручку на цену</p>`,
         task: 'Реши обе задачи. Подсказка: используй формулу зрители = выручка / цена.',
         answer: '1. 1 / 1,25 = 0,8 — осталось 80%, упало на <b>20%</b>.<br>2. 1,2 / 0,8 = 1,5 — стало 150%, выросло на <b>50%</b>.'
       }
@@ -229,6 +254,7 @@
           <p style="margin: 0 0 12px; text-align:center;"><span class="tag tag-tema">ПРОЦЕНТЫ</span></p>
           <h2>${lesson.title}</h2>
           <div class="theory">${lesson.theory}</div>
+          ${lesson.pic ? `<div class="pic">${lesson.pic}</div>` : ''}
           <div class="task-box"><b>Задание:</b> ${lesson.task}</div>
           <div class="answer-box answer-hidden" id="tema-answer"><b>Ответ:</b> ${lesson.answer}</div>
           <button class="show-answer" type="button" id="tema-toggle">Показать ответ</button>
