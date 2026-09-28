@@ -100,14 +100,22 @@
     .back-top { margin: 0 0 14px; width: auto; padding: 10px 18px; font-size: .95rem; background: #e2e8f0; color: #334155; }
     .back-top:hover, .back-top:focus-visible { background: #cbd5e1; }
     .konspekt-layout { display: grid; grid-template-columns: 230px 1fr; gap: 18px; align-items: start; }
-    .k-side { position: sticky; top: 16px; background: #f8fafc; border-radius: 12px; padding: 14px 16px; text-align: left; font-size: .95rem; line-height: 1.6; }
-    .k-side b.side-title { display: block; margin: 10px 0 6px; font-size: .85rem; text-transform: uppercase; letter-spacing: .04em; color: #64748b; }
-    .k-side b.side-title:first-child { margin-top: 0; }
-    .k-side a { display: block; color: #2563eb; text-decoration: none; font-weight: 700; padding: 3px 0; }
-    .k-side a:hover { text-decoration: underline; }
+    .k-side { position: sticky; top: 16px; background: #f8fafc; border-radius: 12px; padding: 14px; text-align: left; font-size: .95rem; line-height: 1.6; display: grid; gap: 10px; }
+    .k-btn { display: block; text-align: center; background: #e9efff; color: #173b8c; text-decoration: none; font-weight: 700; border-radius: 10px; padding: 12px 10px; transition: background .2s, transform .2s; }
+    .k-btn:hover, .k-btn:focus-visible { background: #ccdafe; transform: translateY(-1px); }
+    .k-btn-brief { background: #fef9c3; color: #854d0e; }
+    .k-btn-brief:hover, .k-btn-brief:focus-visible { background: #fde68a; }
     .k-main { min-width: 0; }
     .formula-line { display: block; margin-top: 8px; padding: 10px; background: #fff; border-radius: 8px; font-weight: 700; text-align: center; }
-    .term { border-bottom: 1px dashed #2563eb; cursor: help; position: relative; }
+    .fbook { background: #fff; border-radius: 10px; padding: 14px 12px; margin: 10px 0; text-align: center; font-size: 1.3rem; line-height: 2.2; }
+    .frac { display: inline-flex; flex-direction: column; vertical-align: middle; text-align: center; margin: 0 6px; font-size: .95em; }
+    .frac .fnum { padding: 0 10px; }
+    .frac .fden { border-top: 2px solid #172033; padding: 0 10px; }
+    .sqrt { display: inline-block; white-space: nowrap; }
+    .sqrt .rad { font-size: 1.05em; }
+    .sqrt .rbody { border-top: 2px solid #172033; padding: 0 5px 0 1px; }
+    .term { border-bottom: none; text-decoration: none; cursor: help; position: relative; }
+    .term:hover, .term:focus { background: #fef9c3; border-radius: 4px; }
     .term:hover::after, .term:focus::after { content: attr(data-tip); position: absolute; left: 50%; transform: translateX(-50%); bottom: 135%; background: #0f172a; color: #fff; padding: 6px 10px; border-radius: 8px; font-size: .85rem; font-weight: 700; white-space: nowrap; z-index: 20; pointer-events: none; }
     .solution-box { background: #eff6ff; border: 2px solid #bfdbfe; border-radius: 12px; padding: 16px 18px; font-size: 1.05rem; line-height: 1.55; margin: 14px 0 0; text-align: left; }
     .fail-title { color: #b91c1c; }
@@ -207,22 +215,21 @@
 
     // ===== Конспект: краткий (только формулы, без слов) + подробный, RU/EN =====
     const cheatHTML = `
-      <div class="cheat">
+      <div class="cheat" id="cheat">
         <h3 id="cheat-quad">Квадратные уравнения / Quadratic equations</h3>
-        <span class="formula">ax² + bx + c = 0</span>
-        <span class="formula">a ≠ 0</span>
-        <span class="formula">D = b² − 4ac</span>
-        <span class="formula">D &gt; 0 → 2</span>
-        <span class="formula">D = 0 → 1</span>
-        <span class="formula">D &lt; 0 → 0</span>
-        <span class="formula">x = (−b ± √D) / 2a</span>
+        <div class="fbook">ax² + bx + c = 0, &nbsp;a ≠ 0</div>
+        <div class="fbook">D = b² − 4ac</div>
+        <div class="fbook">x = <span class="frac"><span class="fnum">−b ± <span class="sqrt"><span class="rad">√</span><span class="rbody">D</span></span></span><span class="fden">2a</span></span></div>
+        <div class="fbook">D &gt; 0 → x₁, x₂</div>
+        <div class="fbook">D = 0 → x = <span class="frac"><span class="fnum">−b</span><span class="fden">2a</span></span></div>
+        <div class="fbook">D &lt; 0 → ∅</div>
         <h3 id="cheat-vieta" style="margin-top:16px;">Теорема Виета / Vieta's theorem</h3>
-        <span class="formula">x² + px + q = 0</span>
-        <span class="formula">x₁ + x₂ = −p</span>
-        <span class="formula">x₁ · x₂ = q</span>
-        <span class="formula">ax² + bx + c = 0</span>
-        <span class="formula">x₁ + x₂ = −b / a</span>
-        <span class="formula">x₁ · x₂ = c / a</span>
+        <div class="fbook">x² + px + q = 0</div>
+        <div class="fbook">x₁ + x₂ = −p</div>
+        <div class="fbook">x₁ · x₂ = q</div>
+        <div class="fbook">ax² + bx + c = 0</div>
+        <div class="fbook">x₁ + x₂ = <span class="frac"><span class="fnum">−b</span><span class="fden">a</span></span></div>
+        <div class="fbook">x₁ · x₂ = <span class="frac"><span class="fnum">c</span><span class="fden">a</span></span></div>
       </div>`;
     const cheatRU = cheatHTML;
     const cheatEN = cheatHTML;
@@ -429,19 +436,13 @@
     }
 
     const sideRU = `
-      <b class="side-title">Краткий конспект — формулы</b>
-      <a href="#cheat-quad">Квадратные уравнения</a>
-      <a href="#cheat-vieta">Теорема Виета</a>
-      <b class="side-title">Подробный конспект</b>
-      <a href="#kvadratnye">Квадратные уравнения</a>
-      <a href="#vieta">Теорема Виета</a>`;
+      <a class="k-btn" href="#kvadratnye">Квадратные уравнения</a>
+      <a class="k-btn" href="#vieta">Теорема Виета</a>
+      <a class="k-btn k-btn-brief" href="#cheat">Краткий конспект</a>`;
     const sideEN = `
-      <b class="side-title">Quick notes — formulas</b>
-      <a href="#cheat-quad">Quadratic equations</a>
-      <a href="#cheat-vieta">Vieta's theorem</a>
-      <b class="side-title">Detailed notes</b>
-      <a href="#kvadratnye">Quadratic equations</a>
-      <a href="#vieta">Vieta's theorem</a>`;
+      <a class="k-btn" href="#kvadratnye">Quadratic equations</a>
+      <a class="k-btn" href="#vieta">Vieta's theorem</a>
+      <a class="k-btn k-btn-brief" href="#cheat">Quick notes</a>`;
 
     function renderKonspektLang() {
       const isRu = konspektLang === 'ru';
