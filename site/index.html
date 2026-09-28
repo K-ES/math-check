@@ -8,7 +8,7 @@
     :root { font-family: Arial, sans-serif; color: #172033; background: #f4f7fb; }
     * { box-sizing: border-box; }
     body { min-height: 100vh; margin: 0; display: grid; place-items: center; padding: 24px; }
-    main { width: min(100%, 620px); text-align: center; }
+    main { width: min(100%, 960px); text-align: center; }
     .card { background: #fff; border-radius: 20px; box-shadow: 0 12px 36px rgba(28, 46, 82, .14); padding: 42px 32px; }
     .progress { color: #64748b; font-size: .95rem; margin: 0 0 18px; }
     h1 { margin: 0 0 16px; font-size: clamp(1.8rem, 5vw, 2.5rem); }
@@ -19,6 +19,7 @@
     .tag { display: inline-block; margin: 0 0 12px; padding: 4px 12px; border-radius: 999px; font-size: .8rem; font-weight: 700; background: #e9efff; color: #173b8c; }
     .tag-dota { background: #fee2e2; color: #b91c1c; }
     .tag-tema { background: #dcfce7; color: #166534; }
+    .tag-word { background: #fef9c3; color: #854d0e; }
     .question-image { display: block; width: 100%; max-width: 280px; height: auto; margin: 14px auto 0; border-radius: 12px; background: #0f172a; }
     .result-thumb { display: block; margin-top: 8px; max-width: 120px; height: auto; border-radius: 8px; }
     .answers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
@@ -33,7 +34,8 @@
     .score { font-size: 1.2rem; margin: 0 0 24px; }
     .restart { margin-top: 26px; background: #2563eb; color: #fff; }
     .restart:hover, .restart:focus-visible { background: #1d4ed8; }
-    .choice { display: grid; gap: 14px; }
+    .choice-main { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .choice-tema { margin-top: 14px; display: grid; }
     .choice-btn { display: block; width: 100%; padding: 22px; font-size: 1.5rem; }
     .choice-btn small { display: block; margin-top: 6px; font-size: .9rem; font-weight: 400; opacity: .8; }
     .btn-roma { background: #e9efff; }
@@ -88,42 +90,65 @@
     .vs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .vs-col { border-radius: 10px; padding: 10px; background: #f8fafc; text-align: center; font-size: .95rem; line-height: 1.5; }
     .vs-col b { display: block; margin-bottom: 4px; }
+    .lang-switch { display: flex; gap: 8px; justify-content: center; margin: 0 0 12px; }
+    .lang-btn { padding: 10px 22px; font-size: 1rem; background: #e2e8f0; color: #334155; }
+    .lang-btn.active { background: #2563eb; color: #fff; }
+    .cheat { background: #f0fdf4; border: 2px solid #bbf7d0; border-radius: 12px; padding: 16px 18px; margin: 0 0 16px; }
+    .cheat h3 { margin: 0 0 10px; }
+    .cheat .formula { margin-bottom: 8px; }
+    .hint { text-align: center; color: #64748b; font-size: .92rem; margin: 0 0 14px; }
+    .term { border-bottom: 1px dashed #2563eb; cursor: help; position: relative; white-space: nowrap; }
+    .term:hover::after, .term:focus::after { content: attr(data-tip); position: absolute; left: 50%; transform: translateX(-50%); bottom: 135%; background: #0f172a; color: #fff; padding: 6px 10px; border-radius: 8px; font-size: .85rem; font-weight: 700; white-space: nowrap; z-index: 20; pointer-events: none; }
+    .solution-box { background: #eff6ff; border: 2px solid #bfdbfe; border-radius: 12px; padding: 16px 18px; font-size: 1.05rem; line-height: 1.55; margin: 14px 0 0; text-align: left; }
+    .fail-title { color: #b91c1c; }
+    .win-title { color: #166534; }
+    @media (max-width: 640px) { .choice-main { grid-template-columns: 1fr; } }
     @media (max-width: 420px) { .card { padding: 30px 20px; } .answers { grid-template-columns: 1fr; } .nav { flex-direction: column; } .vs-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
   <main id="app" aria-live="polite"></main>
   <script>
-    // ===== Рома: старый квиз (квадратные уравнения + Dota) =====
+    // ===== Рома: квиз (математика + слова + Dota). Стоп на первой ошибке. =====
     const questions = [
-      { text: 'Чему равен дискриминант уравнения', equation: 'x² − 5x + 6 = 0?', options: ['1', '5', '25', '49'], correct: '1' },
-      { text: 'Сколько корней имеет квадратное уравнение, если', equation: 'D < 0?', options: ['0', '1', '2', 'Бесконечно много'], correct: '0' },
-      { text: 'Какие корни уравнения', equation: 'x² − 9 = 0?', options: ['−3 и 3', '0 и 9', '3 и 6', '−9 и 9'], correct: '−3 и 3' },
-      { text: 'Какой герой изображён на картинке?', image: 'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/pudge.png', imageAlt: 'Герой Dota 2', options: ['Pudge', 'Invoker', 'Axe', 'Juggernaut'], correct: 'Pudge' },
-      { text: 'Сколько разных корней у квадратного уравнения, если', equation: 'D = 0?', options: ['0', '1', '2', '3'], correct: '1' },
-      { text: 'Чему равен дискриминант уравнения', equation: 'x² + 4x + 4 = 0?', options: ['0', '8', '16', '32'], correct: '0' },
-      { text: 'Какие корни уравнения', equation: 'x² − 5x + 6 = 0?', options: ['2 и 3', '−2 и −3', '1 и 6', '−1 и −6'], correct: '2 и 3' },
-      { text: 'Что делает предмет на картинке?', image: 'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/blink.png', imageAlt: 'Предмет Blink Dagger', options: ['Телепортирует героя на короткую дистанцию', 'Даёт невидимость', 'Лечит 500 HP', 'Даёт иммунитет к магии'], correct: 'Телепортирует героя на короткую дистанцию' },
-      { text: 'Чему равно произведение корней уравнения', equation: 'x² − 5x + 6 = 0?', options: ['6', '−6', '5', '−5'], correct: '6' },
-      { text: 'Какие корни уравнения', equation: 'x² − 4x = 0?', options: ['0 и 4', '0 и −4', '2 и 2', '−2 и 2'], correct: '0 и 4' },
-      { text: 'Какие корни уравнения', equation: 'x² − 25 = 0?', options: ['−5 и 5', '0 и 5', '−25 и 25', '5 и 10'], correct: '−5 и 5' },
-      { text: 'Угадай героя по картинке', image: 'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/juggernaut.png', imageAlt: 'Герой Dota 2', options: ['Juggernaut', 'Axe', 'Sven', 'Phantom Assassin'], correct: 'Juggernaut' },
-      { text: 'Какие корни уравнения', equation: '2x² + 3x + 1 = 0?', options: ['−1 и −0,5', '1 и 0,5', '−2 и −1', '0 и −1'], correct: '−1 и −0,5' },
-      { text: 'Чему равен старший коэффициент уравнения', equation: '3x² − 2x + 1 = 0?', options: ['3', '−2', '1', '0'], correct: '3' },
-      { text: 'Чему равен свободный член уравнения', equation: '3x² − 2x + 1 = 0?', options: ['1', '3', '−2', '0'], correct: '1' },
-      { text: 'Кто изображён на картинке?', image: 'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/invoker.png', imageAlt: 'Герой Dota 2', options: ['Invoker', 'Zeus', 'Lina', 'Rubick'], correct: 'Invoker' },
-      { text: 'Какие корни уравнения', equation: 'x² − 2x − 3 = 0?', options: ['3 и −1', '−3 и 1', '−3 и −1', '1 и 3'], correct: '3 и −1' },
-      { text: 'По теореме Виета сумма корней приведённого уравнения', equation: 'x² + px + q = 0 равна?', options: ['−p', 'p', 'q', '−q'], correct: '−p' },
-      { text: 'По теореме Виета произведение корней приведённого уравнения', equation: 'x² + px + q = 0 равно?', options: ['q', '−q', 'p', '−p'], correct: 'q' },
-      { text: 'Что даёт предмет на картинке?', image: 'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/black_king_bar.png', imageAlt: 'Предмет Black King Bar', options: ['Невосприимчивость к большинству заклинаний', 'Телепортацию', 'Невидимость', 'Возрождение'], correct: 'Невосприимчивость к большинству заклинаний' },
-      { text: 'Какой формулой считают дискриминант', equation: 'ax² + bx + c = 0?', options: ['b² − 4ac', 'a² − 4bc', '2a + b', 'c² − ab'], correct: 'b² − 4ac' },
-      { text: 'Чему равна сумма корней уравнения', equation: 'x² − 5x + 6 = 0?', options: ['5', '−5', '6', '−6'], correct: '5' },
-      { text: 'Чему равен дискриминант уравнения', equation: '2x² + 3x + 1 = 0?', options: ['1', '9', '17', '−1'], correct: '1' },
-      { text: 'Чему равен дискриминант уравнения', equation: 'x² − 2x − 3 = 0?', options: ['16', '4', '−8', '8'], correct: '16' },
-      { text: 'Сколько корней имеет квадратное уравнение, если', equation: 'D > 0?', options: ['2', '1', '0', '3'], correct: '2' }
+      { kind: 'math', text: 'Чему равен дискриминант уравнения', equation: 'x² − 5x + 6 = 0?', options: ['1', '5', '25', '49'], correct: '1', solution: 'D = b² − 4ac = (−5)² − 4·1·6 = 25 − 24 = 1.' },
+      { kind: 'word', text: 'Как по-английски «свободный член»?', options: ['constant term', 'leading term', 'middle term', 'root'], correct: 'constant term', solution: 'Свободный член — число без x (c). По-английски — constant term. Leading term — старший член, middle term — средний.' },
+      { kind: 'math', text: 'Сколько корней имеет квадратное уравнение, если', equation: 'D < 0?', options: ['0', '1', '2', 'Бесконечно много'], correct: '0', solution: 'Если D < 0, корней нет — 0. D > 0 → 2 корня, D = 0 → 1 корень.' },
+      { kind: 'math', text: 'Какие корни уравнения', equation: 'x² − 9 = 0?', options: ['−3 и 3', '0 и 9', '3 и 6', '−9 и 9'], correct: '−3 и 3', solution: 'x² = 9, x = ±3. Проверка: 3² − 9 = 0 и (−3)² − 9 = 0.' },
+      { kind: 'word', text: 'Что такое «leading term» по-русски?', options: ['старший член', 'свободный член', 'корень', 'дискриминант'], correct: 'старший член', solution: 'Leading term — старший (главный) член ax², член с x². Constant term — свободный член.' },
+      { kind: 'dota', text: 'Какой герой изображён на картинке?', image: 'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/pudge.png', imageAlt: 'Герой Dota 2', options: ['Pudge', 'Invoker', 'Axe', 'Juggernaut'], correct: 'Pudge', solution: 'На картинке Pudge — герой с хуком и большим животом.' },
+      { kind: 'math', text: 'Сколько разных корней у квадратного уравнения, если', equation: 'D = 0?', options: ['0', '1', '2', '3'], correct: '1', solution: 'При D = 0 корень один (совпавший): x = −b / 2a.' },
+      { kind: 'math', text: 'Чему равен дискриминант уравнения', equation: 'x² + 4x + 4 = 0?', options: ['0', '8', '16', '32'], correct: '0', solution: 'D = 4² − 4·1·4 = 16 − 16 = 0.' },
+      { kind: 'word', text: 'Как по-английски «средний член»?', options: ['middle term', 'constant term', 'leading term', 'sum of roots'], correct: 'middle term', solution: 'Средний член bx (член с x) — middle term (linear term). Constant term — свободный член.' },
+      { kind: 'math', text: 'Какие корни уравнения', equation: 'x² − 5x + 6 = 0?', options: ['2 и 3', '−2 и −3', '1 и 6', '−1 и −6'], correct: '2 и 3', solution: 'По Виету: сумма 5, произведение 6. Это 2 и 3: 2+3=5, 2·3=6.' },
+      { kind: 'dota', text: 'Что делает предмет на картинке?', image: 'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/blink.png', imageAlt: 'Предмет Blink Dagger', options: ['Телепортирует героя на короткую дистанцию', 'Даёт невидимость', 'Лечит 500 HP', 'Даёт иммунитет к магии'], correct: 'Телепортирует героя на короткую дистанцию', solution: 'Blink Dagger — телепортация (бdecлинк) на короткую дистанцию.' },
+      { kind: 'math', text: 'Чему равно произведение корней уравнения', equation: 'x² − 5x + 6 = 0?', options: ['6', '−6', '5', '−5'], correct: '6', solution: 'По Виету для x²+px+q=0 произведение = q = 6. Сумма = 5.' },
+      { kind: 'word', text: 'Что такое «constant term» по-русски?', options: ['свободный член', 'старший член', 'средний член', 'сумма корней'], correct: 'свободный член', solution: 'Constant term — свободный член c, число без x.' },
+      { kind: 'math', text: 'Какие корни уравнения', equation: 'x² − 4x = 0?', options: ['0 и 4', '0 и −4', '2 и 2', '−2 и 2'], correct: '0 и 4', solution: 'x(x − 4) = 0, значит x = 0 или x = 4. Свободного члена здесь нет (c = 0).' },
+      { kind: 'math', text: 'Какие корни уравнения', equation: 'x² − 25 = 0?', options: ['−5 и 5', '0 и 5', '−25 и 25', '5 и 10'], correct: '−5 и 5', solution: 'x² = 25, x = ±5. Среднего члена нет (b = 0).' },
+      { kind: 'dota', text: 'Угадай героя по картинке', image: 'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/juggernaut.png', imageAlt: 'Герой Dota 2', options: ['Juggernaut', 'Axe', 'Sven', 'Phantom Assassin'], correct: 'Juggernaut', solution: 'На картинке Juggernaut — герой с маской и катаной.' },
+      { kind: 'math', text: 'Какие корни уравнения', equation: '2x² + 3x + 1 = 0?', options: ['−1 и −0,5', '1 и 0,5', '−2 и −1', '0 и −1'], correct: '−1 и −0,5', solution: 'D = 9 − 8 = 1, x = (−3 ± 1)/4: x₁ = −1, x₂ = −0,5.' },
+      { kind: 'word', text: 'Как по-английски «старший коэффициент»?', options: ['leading coefficient', 'constant term', 'middle term', 'discriminant'], correct: 'leading coefficient', solution: 'Старший коэффициент a (при x²) — leading coefficient. Constant term — свободный член.' },
+      { kind: 'math', text: 'Чему равен старший коэффициент уравнения', equation: '3x² − 2x + 1 = 0?', options: ['3', '−2', '1', '0'], correct: '3', solution: 'Старший коэффициент — число при x²: a = 3. b = −2, c = 1.' },
+      { kind: 'math', text: 'Чему равен свободный член уравнения', equation: '3x² − 2x + 1 = 0?', options: ['1', '3', '−2', '0'], correct: '1', solution: 'Свободный член — число без x: c = 1.' },
+      { kind: 'word', text: 'Что такое «sum of roots» по-русски?', options: ['сумма корней', 'произведение корней', 'свободный член', 'старший член'], correct: 'сумма корней', solution: 'Sum of roots — сумма корней x₁ + x₂. Product of roots — произведение.' },
+      { kind: 'dota', text: 'Кто изображён на картинке?', image: 'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/invoker.png', imageAlt: 'Герой Dota 2', options: ['Invoker', 'Zeus', 'Lina', 'Rubick'], correct: 'Invoker', solution: 'На картинке Invoker — маг с тремя сферами.' },
+      { kind: 'math', text: 'Какие корни уравнения', equation: 'x² − 2x − 3 = 0?', options: ['3 и −1', '−3 и 1', '−3 и −1', '1 и 3'], correct: '3 и −1', solution: 'По Виету: сумма 2, произведение −3. Это 3 и −1: 3+(−1)=2, 3·(−1)=−3.' },
+      { kind: 'word', text: 'Как по-английски «произведение корней»?', options: ['product of roots', 'sum of roots', 'constant term', 'leading term'], correct: 'product of roots', solution: 'Произведение корней x₁·x₂ — product of roots. Сумма — sum of roots.' },
+      { kind: 'math', text: 'По теореме Виета сумма корней приведённого уравнения', equation: 'x² + px + q = 0 равна?', options: ['−p', 'p', 'q', '−q'], correct: '−p', solution: 'По Виету x₁ + x₂ = −p (второй коэффициент с обратным знаком).' },
+      { kind: 'math', text: 'По теореме Виета произведение корней приведённого уравнения', equation: 'x² + px + q = 0 равно?', options: ['q', '−q', 'p', '−p'], correct: 'q', solution: 'По Виету x₁·x₂ = q (свободному члену).' },
+      { kind: 'word', text: 'Как по-английски «теорема Виета»?', options: ["Vieta's theorem", "Pythagoras' theorem", 'discriminant', 'quadratic equation'], correct: "Vieta's theorem", solution: "Теорема Виета — Vieta's theorem (Vieta's formulas). Связывает корни и коэффициенты." },
+      { kind: 'dota', text: 'Что даёт предмет на картинке?', image: 'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/black_king_bar.png', imageAlt: 'Предмет Black King Bar', options: ['Невосприимчивость к большинству заклинаний', 'Телепортацию', 'Невидимость', 'Возрождение'], correct: 'Невосприимчивость к большинству заклинаний', solution: 'Black King Bar (БКБ) даёт невосприимчивость к большинству заклинаний.' },
+      { kind: 'math', text: 'Какой формулой считают дискриминант', equation: 'ax² + bx + c = 0?', options: ['b² − 4ac', 'a² − 4bc', '2a + b', 'c² − ab'], correct: 'b² − 4ac', solution: 'D = b² − 4ac. Только так.' },
+      { kind: 'word', text: 'Как по-английски «квадратное уравнение»?', options: ['quadratic equation', "Vieta's theorem", 'constant term', 'linear equation'], correct: 'quadratic equation', solution: 'Квадратное уравнение — quadratic equation. Linear equation — линейное.' },
+      { kind: 'math', text: 'Чему равна сумма корней уравнения', equation: 'x² − 5x + 6 = 0?', options: ['5', '−5', '6', '−6'], correct: '5', solution: 'По Виету сумма = −p = 5 (p = −5). Произведение = 6.' },
+      { kind: 'math', text: 'Чему равен дискриминант уравнения', equation: '2x² + 3x + 1 = 0?', options: ['1', '9', '17', '−1'], correct: '1', solution: 'D = 3² − 4·2·1 = 9 − 8 = 1.' },
+      { kind: 'math', text: 'Чему равен дискриминант уравнения', equation: 'x² − 2x − 3 = 0?', options: ['16', '4', '−8', '8'], correct: '16', solution: 'D = (−2)² − 4·1·(−3) = 4 + 12 = 16.' },
+      { kind: 'word', text: 'Как по-английски «корень уравнения»?', options: ['root', 'branch', 'leaf', 'coefficient'], correct: 'root', solution: 'Корень уравнения — root. Coefficient — коэффициент.' },
+      { kind: 'math', text: 'Сколько корней имеет квадратное уравнение, если', equation: 'D > 0?', options: ['2', '1', '0', '3'], correct: '2', solution: 'При D > 0 два разных корня: x = (−b ± √D) / 2a.' }
     ];
 
-    // ===== Тёма: учебник по процентам (заготовка) =====
+    // ===== Тёма: учебник по процентам =====
     const temaLessons = [
       {
         title: 'Шаг 1. Что значит «выросла на 40%»?',
@@ -169,20 +194,148 @@
       }
     ];
 
+    // ===== Конспект: быстрые записки + подробный, RU/EN =====
+    const cheatRU = `
+      <div class="cheat">
+        <h3>⚡ Быстрые записки — только формулы</h3>
+        <span class="formula">ax² + bx + c = 0, где a ≠ 0</span>
+        <span class="formula">ax² — старший член | bx — средний член | c — свободный член</span>
+        <span class="formula">D = b² − 4ac</span>
+        <span class="formula">D &gt; 0 → 2 корня | D = 0 → 1 корень | D &lt; 0 → нет корней</span>
+        <span class="formula">x = (−b ± √D) / 2a</span>
+        <span class="formula">x² + px + q = 0: x₁ + x₂ = −p, x₁ · x₂ = q</span>
+        <span class="formula">ax² + bx + c = 0: x₁ + x₂ = −b/a, x₁ · x₂ = c/a</span>
+      </div>`;
+    const cheatEN = `
+      <div class="cheat">
+        <h3>⚡ Quick notes — formulas only</h3>
+        <span class="formula">ax² + bx + c = 0, where a ≠ 0</span>
+        <span class="formula">ax² — leading term | bx — middle term | c — constant term</span>
+        <span class="formula">D = b² − 4ac</span>
+        <span class="formula">D &gt; 0 → 2 roots | D = 0 → 1 root | D &lt; 0 → no roots</span>
+        <span class="formula">x = (−b ± √D) / 2a</span>
+        <span class="formula">x² + px + q = 0: x₁ + x₂ = −p, x₁ · x₂ = q</span>
+        <span class="formula">ax² + bx + c = 0: x₁ + x₂ = −b/a, x₁ · x₂ = c/a</span>
+      </div>`;
+
+    const detailRU = `
+          <nav class="toc">
+            <b>Содержание:</b>
+            1. <a href="#kvadratnye">Квадратные уравнения</a><br>
+            1.1. <a href="#chleny">Члены уравнения: старший, средний и свободный</a><br>
+            1.2. <a href="#vieta">Теорема Виета</a>
+          </nav>
+          <h3 id="kvadratnye">1. Квадратные уравнения</h3>
+          <div class="theory">
+            <p><span class="term" data-tip="quadratic equation" tabindex="0"><b>Квадратное уравнение</b></span> — это <span class="term" data-tip="equation" tabindex="0">уравнение</span> вида:</p>
+            <span class="formula">ax² + bx + c = 0, где a ≠ 0</span>
+            <p style="margin-top:10px">Буквы <b>a, b, c</b> — это числа (<span class="term" data-tip="coefficients" tabindex="0">коэффициенты</span>). Буква <b>x</b> — неизвестное, которое надо найти.</p>
+            <p>Почему уравнение «квадратное»? Потому что самая большая степень x — вторая (x в квадрате).</p>
+            <p>Условие <b>a ≠ 0</b> обязательно: если a = 0, то член ax² исчезнет и уравнение станет линейным (bx + c = 0), а не квадратным.</p>
+          </div>
+          <h3 id="chleny">1.1. Члены уравнения: старший, средний и свободный</h3>
+          <div class="theory">
+            <p>У квадратного уравнения <b>ax² + bx + c = 0</b> три члена (три слагаемых слева):</p>
+            <p><b>1. <span class="term" data-tip="leading (quadratic) term" tabindex="0">Старший (главный, квадратичный) член</span> — ax².</b> Это член с x². Он главный, потому что именно он делает уравнение квадратным. Число <b>a</b> называется <span class="term" data-tip="leading coefficient" tabindex="0"><b>старшим (первым) коэффициентом</b></span>.</p>
+            <p><b>2. <span class="term" data-tip="middle (linear) term" tabindex="0">Средний (второй, линейный) член</span> — bx.</b> Это член с x в первой степени. Число <b>b</b> называется <span class="term" data-tip="middle coefficient" tabindex="0"><b>вторым (средним) коэффициентом</b></span>.</p>
+            <p><b>3. <span class="term" data-tip="constant term" tabindex="0">Свободный член</span> — c.</b> Это обычное число без x. Он называется «свободным», потому что свободен от неизвестного x — в нём нет икса вообще.</p>
+            <span class="formula">ax² — старший член | bx — средний член | c — свободный член</span>
+          </div>
+          <div class="example"><b>Пример 1:</b> 3x² − 2x + 1 = 0.<br>Старший член: <b>3x²</b> (старший коэффициент a = 3).<br>Средний член: <b>−2x</b> (коэффициент b = −2, знак относится к члену!).<br>Свободный член: <b>1</b> (c = 1).</div>
+          <div class="example"><b>Пример 2:</b> x² − 5x + 6 = 0.<br>Старший член: <b>x²</b> (a = 1, единицу обычно не пишут).<br>Средний член: <b>−5x</b> (b = −5).<br>Свободный член: <b>6</b> (c = 6).</div>
+          <div class="example"><b>Пример 3:</b> 2x² + 3x + 1 = 0.<br>a = 2, b = 3, c = 1.<br>Старший член 2x², средний 3x, свободный член 1.</div>
+          <div class="theory">
+            <p><b>Запомнить просто:</b></p>
+            <p>• Видишь x² — это старший (главный) член.<br>• Видишь x без квадрата — это средний член.<br>• Видишь число без x — это свободный член.</p>
+            <p><b>Частые ошибки:</b> не теряй знак минус (в уравнении x² − 5x + 6 = 0 свободный член +6, а средний коэффициент −5, а не 5). И не путай: в вопросе «чему равен свободный член?» спрашивают число <b>c</b>, а в вопросе «назовите старший член» — всё выражение целиком, например <b>3x²</b>.</p>
+            <p><b>Неполные уравнения:</b> если b = 0 или c = 0, какого-то члена нет. Например, x² − 9 = 0 — нет среднего члена (b = 0), а x² − 4x = 0 — нет свободного члена (c = 0).</p>
+            <p><b><span class="term" data-tip="monic equation (a = 1)" tabindex="0">Приведённое уравнение</span>:</b> если старший коэффициент a = 1, уравнение называют приведённым: x² + px + q = 0. Здесь p — это b, а q — это свободный член. Именно для таких уравнений удобнее всего теорема Виета.</p>
+          </div>
+          <h3 id="vieta">1.2. Теорема Виета</h3>
+          <div class="theory">
+            <p><span class="term" data-tip="Vieta's theorem" tabindex="0"><b>Теорема Виета</b></span> связывает <span class="term" data-tip="roots" tabindex="0"><b>корни</b></span> квадратного уравнения с его коэффициентами — можно найти или проверить корни без <span class="term" data-tip="discriminant" tabindex="0">дискриминанта</span>.</p>
+            <p><b>Для приведённого уравнения x² + px + q = 0</b> (если корни x₁ и x₂ существуют):</p>
+            <span class="formula">x₁ + x₂ = −p &nbsp;&nbsp;|&nbsp;&nbsp; x₁ × x₂ = q</span>
+            <p style="margin-top:10px">Словами: <span class="term" data-tip="sum of roots" tabindex="0"><b>сумма корней</b></span> равна второму коэффициенту с обратным знаком, а <span class="term" data-tip="product of roots" tabindex="0"><b>произведение корней</b></span> равно свободному члену.</p>
+            <p><b>Для общего уравнения ax² + bx + c = 0:</b></p>
+            <span class="formula">x₁ + x₂ = −b / a &nbsp;&nbsp;|&nbsp;&nbsp; x₁ × x₂ = c / a</span>
+            <p style="margin-top:10px">Если a = 1, вторая формула превращается в первую.</p>
+            <p><b>Обратная теорема:</b> если два числа в сумме дают −p, а в произведении q, то они и есть корни уравнения x² + px + q = 0. Так корни можно подбирать устно.</p>
+          </div>
+          <div class="example"><b>Пример:</b> x² − 5x + 6 = 0. Здесь p = −5, q = 6.<br>По Виету: x₁ + x₂ = 5, x₁ × x₂ = 6.<br>Какие два числа дают в сумме 5, а в произведении 6? Это <b>2 и 3</b>. Проверка: 2 + 3 = 5, 2 × 3 = 6. Значит, корни — 2 и 3.</div>
+          <div class="theory">
+            <p><b>Как пользоваться:</b></p>
+            <p>1. Убедись, что уравнение приведённое (a = 1). Если нет — раздели всё на a.<br>2. Выпиши сумму (−p) и произведение (q).<br>3. Подбери два числа: начни с произведения (разложи свободный член на множители) и проверь сумму.<br>4. Проверь корни подстановкой в уравнение.</p>
+            <p><b>Важно:</b> Виет работает, только если у уравнения есть корни (дискриминант D ≥ 0). Если D &lt; 0, корней нет и подбирать нечего.</p>
+          </div>`;
+
+    const detailEN = `
+          <nav class="toc">
+            <b>Contents:</b>
+            1. <a href="#kvadratnye">Quadratic equations</a><br>
+            1.1. <a href="#chleny">Terms: leading, middle, constant</a><br>
+            1.2. <a href="#vieta">Vieta's theorem</a>
+          </nav>
+          <h3 id="kvadratnye">1. Quadratic equations</h3>
+          <div class="theory">
+            <p><span class="term" data-tip="квадратное уравнение" tabindex="0"><b>Quadratic equation</b></span> is an <span class="term" data-tip="уравнение" tabindex="0">equation</span> of the form:</p>
+            <span class="formula">ax² + bx + c = 0, where a ≠ 0</span>
+            <p style="margin-top:10px">Letters <b>a, b, c</b> are numbers (<span class="term" data-tip="коэффициенты" tabindex="0">coefficients</span>). Letter <b>x</b> is the unknown we need to find.</p>
+            <p>Why «quadratic»? Because the highest power of x is 2 (x squared).</p>
+            <p>Condition <b>a ≠ 0</b> is required: if a = 0, the term ax² disappears and the equation becomes linear (bx + c = 0).</p>
+          </div>
+          <h3 id="chleny">1.1. Terms: leading, middle, constant</h3>
+          <div class="theory">
+            <p>A quadratic equation <b>ax² + bx + c = 0</b> has three terms (three parts on the left):</p>
+            <p><b>1. <span class="term" data-tip="старший (главный) член" tabindex="0">Leading (quadratic) term</span> — ax².</b> The term with x². It is the main one, it makes the equation quadratic. Number <b>a</b> is called the <span class="term" data-tip="старший коэффициент" tabindex="0"><b>leading coefficient</b></span>.</p>
+            <p><b>2. <span class="term" data-tip="средний член" tabindex="0">Middle (linear) term</span> — bx.</b> The term with x to the first power. Number <b>b</b> is called the <span class="term" data-tip="средний коэффициент" tabindex="0"><b>middle coefficient</b></span>.</p>
+            <p><b>3. <span class="term" data-tip="свободный член" tabindex="0">Constant term</span> — c.</b> A plain number without x. It is «free» because it is free from the unknown x.</p>
+            <span class="formula">ax² — leading term | bx — middle term | c — constant term</span>
+          </div>
+          <div class="example"><b>Example 1:</b> 3x² − 2x + 1 = 0.<br>Leading term: <b>3x²</b> (leading coefficient a = 3).<br>Middle term: <b>−2x</b> (coefficient b = −2, the sign belongs to the term!).<br>Constant term: <b>1</b> (c = 1).</div>
+          <div class="example"><b>Example 2:</b> x² − 5x + 6 = 0.<br>Leading term: <b>x²</b> (a = 1, we usually do not write 1).<br>Middle term: <b>−5x</b> (b = −5).<br>Constant term: <b>6</b> (c = 6).</div>
+          <div class="example"><b>Example 3:</b> 2x² + 3x + 1 = 0.<br>a = 2, b = 3, c = 1.<br>Leading term 2x², middle term 3x, constant term 1.</div>
+          <div class="theory">
+            <p><b>Easy rule:</b></p>
+            <p>• See x² — it is the leading term.<br>• See x without a square — it is the middle term.<br>• See a number without x — it is the constant term.</p>
+            <p><b>Common mistakes:</b> do not lose the minus sign (in x² − 5x + 6 = 0 the constant term is +6, and the middle coefficient is −5, not 5).</p>
+            <p><b>Incomplete equations:</b> if b = 0 or c = 0, some term is missing. For example, x² − 9 = 0 has no middle term (b = 0), and x² − 4x = 0 has no constant term (c = 0).</p>
+            <p><b><span class="term" data-tip="приведённое уравнение" tabindex="0">Monic equation</span>:</b> if the leading coefficient a = 1, the equation is called monic (in Russian «приведённое»): x² + px + q = 0. Here p is b, and q is the constant term. Vieta's theorem is easiest for such equations.</p>
+          </div>
+          <h3 id="vieta">1.2. Vieta's theorem</h3>
+          <div class="theory">
+            <p><span class="term" data-tip="теорема Виета" tabindex="0"><b>Vieta's theorem</b></span> connects the <span class="term" data-tip="корни" tabindex="0"><b>roots</b></span> of a quadratic equation with its coefficients — you can find or check roots without the <span class="term" data-tip="дискриминант" tabindex="0">discriminant</span>.</p>
+            <p><b>For a monic equation x² + px + q = 0</b> (if roots x₁ and x₂ exist):</p>
+            <span class="formula">x₁ + x₂ = −p &nbsp;&nbsp;|&nbsp;&nbsp; x₁ × x₂ = q</span>
+            <p style="margin-top:10px">In words: the <span class="term" data-tip="сумма корней" tabindex="0"><b>sum of roots</b></span> equals the second coefficient with the opposite sign, and the <span class="term" data-tip="произведение корней" tabindex="0"><b>product of roots</b></span> equals the constant term.</p>
+            <p><b>For a general equation ax² + bx + c = 0:</b></p>
+            <span class="formula">x₁ + x₂ = −b / a &nbsp;&nbsp;|&nbsp;&nbsp; x₁ × x₂ = c / a</span>
+            <p style="margin-top:10px">If a = 1, the second formula becomes the first one.</p>
+            <p><b>Converse theorem:</b> if two numbers give −p in sum and q in product, they are the roots of x² + px + q = 0. So roots can be guessed.</p>
+          </div>
+          <div class="example"><b>Example:</b> x² − 5x + 6 = 0. Here p = −5, q = 6.<br>By Vieta: x₁ + x₂ = 5, x₁ × x₂ = 6.<br>Which two numbers give 5 in sum and 6 in product? They are <b>2 and 3</b>. Check: 2 + 3 = 5, 2 × 3 = 6. So the roots are 2 and 3.</div>
+          <div class="theory">
+            <p><b>How to use:</b></p>
+            <p>1. Check that the equation is monic (a = 1). If not — divide everything by a.<br>2. Write the sum (−p) and the product (q).<br>3. Guess two numbers: start from the product (split the constant term into factors) and check the sum.<br>4. Check the roots by putting them into the equation.</p>
+            <p><b>Important:</b> Vieta works only if the equation has roots (discriminant D ≥ 0). If D &lt; 0, there are no roots and there is nothing to guess.</p>
+          </div>`;
+
     const app = document.querySelector('#app');
     let currentQuestion = 0;
-    let answers = [];
     let currentTema = 0;
+    let konspektLang = 'ru';
 
     function showStart() {
       app.innerHTML = `
         <section class="card">
           <h1>Проверка математики</h1>
           <p class="subtitle">Выбери, кто проходит:</p>
-          <div class="choice">
-            <button type="button" class="choice-btn btn-roma" data-who="roma">Рома<small>квадратные уравнения + Dota 2 (25 вопросов)</small></button>
+          <div class="choice-main">
+            <button type="button" class="choice-btn btn-roma" data-who="roma">Рома<small>математика + слова + Dota (${questions.length} вопросов, стоп на первой ошибке)</small></button>
+            <button type="button" class="choice-btn btn-konspekt" data-who="konspekt">Конспект<small>теория на одной странице: формулы, члены уравнения, Виет (RU/EN)</small></button>
+          </div>
+          <div class="choice-tema">
             <button type="button" class="choice-btn btn-tema" data-who="tema">Тёма<small>проценты: задача про театр (учебник)</small></button>
-            <button type="button" class="choice-btn btn-konspekt" data-who="konspekt">Конспект<small>теория на одной странице: квадратные уравнения, члены уравнения, теорема Виета</small></button>
           </div>
         </section>`;
       app.querySelectorAll('[data-who]').forEach(button => {
@@ -198,69 +351,44 @@
       app.innerHTML = `
         <section class="card lesson konspekt">
           <p class="progress">Конспект • всё на одной странице</p>
-          <p style="margin: 0 0 12px; text-align:center;"><span class="tag" style="background:#fef9c3;color:#854d0e;">КОНСПЕКТ</span></p>
-          <h2>Конспект</h2>
-          <nav class="toc">
-            <b>Содержание:</b>
-            1. <a href="#kvadratnye">Квадратные уравнения</a><br>
-            1.1. <a href="#chleny">Члены уравнения: старший, средний и свободный</a><br>
-            1.2. <a href="#vieta">Теорема Виета</a>
-          </nav>
-
-          <h3 id="kvadratnye">1. Квадратные уравнения</h3>
-          <div class="theory">
-            <p><b>Квадратное уравнение</b> — это уравнение вида:</p>
-            <span class="formula">ax² + bx + c = 0, где a ≠ 0</span>
-            <p style="margin-top:10px">Буквы <b>a, b, c</b> — это числа (коэффициенты). Буква <b>x</b> — неизвестное, которое надо найти.</p>
-            <p>Почему уравнение «квадратное»? Потому что самая большая степень x — вторая (x в квадрате).</p>
-            <p>Условие <b>a ≠ 0</b> обязательно: если a = 0, то член ax² исчезнет и уравнение станет линейным (bx + c = 0), а не квадратным.</p>
+          <p style="margin: 0 0 12px; text-align:center;"><span class="tag" style="background:#fef9c3;color:#854d0e;">КОНСПЕКТ / NOTES</span></p>
+          <h2 id="konspekt-title">Конспект</h2>
+          <div class="lang-switch">
+            <button type="button" class="lang-btn" id="lang-ru">Русский</button>
+            <button type="button" class="lang-btn" id="lang-en">English</button>
           </div>
-
-          <h3 id="chleny">1.1. Члены уравнения: старший, средний и свободный</h3>
-          <div class="theory">
-            <p>У квадратного уравнения <b>ax² + bx + c = 0</b> три члена (три слагаемых слева):</p>
-            <p><b>1. Старший (главный, квадратичный) член — ax².</b> Это член с x². Он главный, потому что именно он делает уравнение квадратным. Число <b>a</b> называется <b>старшим (первым) коэффициентом</b>.</p>
-            <p><b>2. Средний (второй, линейный) член — bx.</b> Это член с x в первой степени. Число <b>b</b> называется <b>вторым (средним) коэффициентом</b>.</p>
-            <p><b>3. Свободный член — c.</b> Это обычное число без x. Он называется «свободным», потому что свободен от неизвестного x — в нём нет икса вообще.</p>
-            <span class="formula">ax² — старший член | bx — средний член | c — свободный член</span>
-          </div>
-          <div class="example"><b>Пример 1:</b> 3x² − 2x + 1 = 0.<br>Старший член: <b>3x²</b> (старший коэффициент a = 3).<br>Средний член: <b>−2x</b> (коэффициент b = −2, знак относится к члену!).<br>Свободный член: <b>1</b> (c = 1).</div>
-          <div class="example"><b>Пример 2:</b> x² − 5x + 6 = 0.<br>Старший член: <b>x²</b> (a = 1, единицу обычно не пишут).<br>Средний член: <b>−5x</b> (b = −5).<br>Свободный член: <b>6</b> (c = 6).</div>
-          <div class="example"><b>Пример 3:</b> 2x² + 3x + 1 = 0.<br>a = 2, b = 3, c = 1.<br>Старший член 2x², средний 3x, свободный член 1.</div>
-          <div class="theory">
-            <p><b>Запомнить просто:</b></p>
-            <p>• Видишь x² — это старший (главный) член.<br>• Видишь x без квадрата — это средний член.<br>• Видишь число без x — это свободный член.</p>
-            <p><b>Частые ошибки:</b> не теряй знак минус (в уравнении x² − 5x + 6 = 0 свободный член +6, а средний коэффициент −5, а не 5). И не путай: в вопросе «чему равен свободный член?» спрашивают число <b>c</b>, а в вопросе «назовите старший член» — всё выражение целиком, например <b>3x²</b>.</p>
-            <p><b>Неполные уравнения:</b> если b = 0 или c = 0, какого-то члена нет. Например, x² − 9 = 0 — нет среднего члена (b = 0), а x² − 4x = 0 — нет свободного члена (c = 0). Они всё равно квадратные и решаются проще обычного.</p>
-            <p><b>Приведённое уравнение:</b> если старший коэффициент a = 1, уравнение называют приведённым: x² + px + q = 0. Здесь p — это b, а q — это свободный член. Именно для таких уравнений удобнее всего теорема Виета.</p>
-          </div>
-
-          <h3 id="vieta">1.2. Теорема Виета</h3>
-          <div class="theory">
-            <p><b>Теорема Виета</b> связывает корни квадратного уравнения с его коэффициентами — можно найти или проверить корни без дискриминанта.</p>
-            <p><b>Для приведённого уравнения x² + px + q = 0</b> (если корни x₁ и x₂ существуют):</p>
-            <span class="formula">x₁ + x₂ = −p &nbsp;&nbsp;|&nbsp;&nbsp; x₁ × x₂ = q</span>
-            <p style="margin-top:10px">Словами: <b>сумма корней равна второму коэффициенту с обратным знаком, а произведение корней равно свободному члену</b>.</p>
-            <p><b>Для общего уравнения ax² + bx + c = 0:</b></p>
-            <span class="formula">x₁ + x₂ = −b / a &nbsp;&nbsp;|&nbsp;&nbsp; x₁ × x₂ = c / a</span>
-            <p style="margin-top:10px">Если a = 1, вторая формула превращается в первую.</p>
-            <p><b>Обратная теорема:</b> если два числа в сумме дают −p, а в произведении q, то они и есть корни уравнения x² + px + q = 0. Так корни можно подбирать устно.</p>
-          </div>
-          <div class="example"><b>Пример:</b> x² − 5x + 6 = 0. Здесь p = −5, q = 6.<br>По Виету: x₁ + x₂ = 5, x₁ × x₂ = 6.<br>Какие два числа дают в сумме 5, а в произведении 6? Это <b>2 и 3</b>. Проверка: 2 + 3 = 5, 2 × 3 = 6. Значит, корни — 2 и 3.</div>
-          <div class="theory">
-            <p><b>Как пользоваться:</b></p>
-            <p>1. Убедись, что уравнение приведённое (a = 1). Если нет — раздели всё на a.<br>2. Выпиши сумму (−p) и произведение (q).<br>3. Подбери два числа: начни с произведения (разложи свободный член на множители) и проверь сумму.<br>4. Проверь корни подстановкой в уравнение.</p>
-            <p><b>Важно:</b> Виет работает, только если у уравнения есть корни (дискриминант D ≥ 0). Если D &lt; 0, корней нет и подбирать нечего.</p>
-          </div>
-
+          <p class="hint" id="konspekt-hint"></p>
+          <div id="konspekt-cheat"></div>
+          <div id="konspekt-detail"></div>
           <div class="nav">
             <button class="btn-primary" type="button" id="konspekt-start">← К выбору Рома / Тёма</button>
           </div>
         </section>`;
       app.querySelector('#konspekt-start').addEventListener('click', showStart);
+      app.querySelector('#lang-ru').addEventListener('click', () => { konspektLang = 'ru'; renderKonspektLang(); });
+      app.querySelector('#lang-en').addEventListener('click', () => { konspektLang = 'en'; renderKonspektLang(); });
+      renderKonspektLang();
     }
 
-    function startRoma() { currentQuestion = 0; answers = []; showQuestion(); }
+    function renderKonspektLang() {
+      const isRu = konspektLang === 'ru';
+      const btnRu = app.querySelector('#lang-ru');
+      const btnEn = app.querySelector('#lang-en');
+      if (btnRu) btnRu.classList.toggle('active', isRu);
+      if (btnEn) btnEn.classList.toggle('active', !isRu);
+      const title = app.querySelector('#konspekt-title');
+      const hint = app.querySelector('#konspekt-hint');
+      const cheat = app.querySelector('#konspekt-cheat');
+      const detail = app.querySelector('#konspekt-detail');
+      if (title) title.textContent = isRu ? 'Конспект' : 'Notes';
+      if (hint) hint.textContent = isRu
+        ? 'Наведи мышкой на подчёркнутое слово — увидишь перевод на английский'
+        : 'Hover over an underlined word to see the Russian translation';
+      if (cheat) cheat.innerHTML = isRu ? cheatRU : cheatEN;
+      if (detail) detail.innerHTML = isRu ? detailRU : detailEN;
+    }
+
+    function startRoma() { currentQuestion = 0; showQuestion(); }
     function startTema() { currentTema = 0; showTemaLesson(); }
 
     function formatQuestion(question) {
@@ -273,15 +401,26 @@
         ? `<img class="${cls}" src="${question.image}" alt="${question.imageAlt || 'Картинка к вопросу'}" loading="lazy">`
         : '';
     }
-    function isDota(question) { return Boolean(question.image); }
+    function isDota(question) { return question.kind === 'dota'; }
+    function isWord(question) { return question.kind === 'word'; }
+    function questionTag(question) {
+      if (isDota(question)) return '<span class="tag tag-dota">DOTA 2</span>';
+      if (isWord(question)) return '<span class="tag tag-word">СЛОВА / WORDS</span>';
+      return '<span class="tag">МАТЕМАТИКА</span>';
+    }
+    function questionTitle(question) {
+      if (isDota(question)) return 'Dota 2';
+      if (isWord(question)) return 'Слова из конспекта';
+      return 'Квадратные уравнения';
+    }
 
     function showQuestion() {
       const question = questions[currentQuestion];
       app.innerHTML = `
         <section class="card">
-          <p class="progress">Рома • Вопрос ${currentQuestion + 1} из ${questions.length}</p>
-          <h1>${isDota(question) ? 'Dota 2' : 'Квадратные уравнения'}</h1>
-          <p style="margin: 0 0 16px;"><span class="tag ${isDota(question) ? 'tag-dota' : ''}">${isDota(question) ? 'DOTA 2' : 'МАТЕМАТИКА'}</span></p>
+          <p class="progress">Рома • Вопрос ${currentQuestion + 1} из ${questions.length} • тест идёт до первой ошибки</p>
+          <h1>${questionTitle(question)}</h1>
+          <p style="margin: 0 0 16px;">${questionTag(question)}</p>
           <p class="question">${formatQuestion(question)}${questionImage(question, 'question-image')}</p>
           <div class="answers">
             ${question.options.map(option => `<button type="button" data-answer="${option}">${option}</button>`).join('')}
@@ -295,26 +434,41 @@
     }
 
     function chooseAnswer(answer) {
-      answers.push(answer);
-      currentQuestion += 1;
-      currentQuestion < questions.length ? showQuestion() : showResults();
+      const question = questions[currentQuestion];
+      if (answer === question.correct) {
+        currentQuestion += 1;
+        currentQuestion < questions.length ? showQuestion() : showWin();
+      } else {
+        showFail(question, answer);
+      }
     }
 
-    function showResults() {
-      const correctCount = answers.filter((answer, index) => answer === questions[index].correct).length;
+    function showFail(question, answer) {
       app.innerHTML = `
         <section class="card">
-          <h1>Результат</h1>
-          <p class="score">Правильных ответов: ${correctCount} из ${questions.length}</p>
+          <h1 class="fail-title">Ошибка — тест остановлен</h1>
+          <p class="score">Правильных подряд: ${currentQuestion} из ${questions.length} (ошибка на вопросе ${currentQuestion + 1})</p>
           <div class="result-list">
-            ${questions.map((question, index) => {
-              const isCorrect = answers[index] === question.correct;
-              return `<article class="result ${isCorrect ? 'correct' : 'incorrect'}">
-                <p><strong>${index + 1}. ${formatQuestion(question)}</strong>${questionImage(question, 'result-thumb')}</p>
-                <p>Ваш ответ: ${answers[index]}. Правильный ответ: ${question.correct}.</p>
-              </article>`;
-            }).join('')}
+            <article class="result incorrect">
+              <p><strong>${currentQuestion + 1}. ${formatQuestion(question)}</strong>${questionImage(question, 'result-thumb')}</p>
+              <p>Ваш ответ: ${answer}. Правильный ответ: ${question.correct}.</p>
+            </article>
           </div>
+          <div class="solution-box"><b>Верное решение:</b> ${question.solution}</div>
+          <div class="nav">
+            <button class="btn-secondary" type="button" data-go="retry">Пройти ещё раз</button>
+            <button class="btn-primary" type="button" data-go="start">К выбору</button>
+          </div>
+        </section>`;
+      app.querySelector('[data-go="retry"]').addEventListener('click', startRoma);
+      app.querySelector('[data-go="start"]').addEventListener('click', showStart);
+    }
+
+    function showWin() {
+      app.innerHTML = `
+        <section class="card">
+          <h1 class="win-title">Отлично! Все верно 🎉</h1>
+          <p class="score">Правильных ответов: ${questions.length} из ${questions.length} — без единой ошибки!</p>
           <div class="nav">
             <button class="btn-secondary" type="button" data-go="retry">Пройти ещё раз</button>
             <button class="btn-primary" type="button" data-go="start">К выбору</button>
