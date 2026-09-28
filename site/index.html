@@ -39,6 +39,17 @@
     .btn-roma { background: #e9efff; }
     .btn-tema { background: #dcfce7; color: #166534; }
     .btn-tema:hover, .btn-tema:focus-visible { background: #bbf7d0; }
+    .btn-konspekt { background: #fef9c3; color: #854d0e; }
+    .btn-konspekt:hover, .btn-konspekt:focus-visible { background: #fde68a; }
+    .toc { background: #f8fafc; border-radius: 12px; padding: 14px 18px; margin: 0 0 16px; text-align: left; line-height: 1.7; font-size: 1rem; }
+    .toc b { display: block; margin-bottom: 6px; }
+    .toc a { color: #2563eb; text-decoration: none; font-weight: 700; }
+    .toc a:hover { text-decoration: underline; }
+    .konspekt h3 { margin: 22px 0 10px; font-size: 1.15rem; }
+    .konspekt h3:first-of-type { margin-top: 0; }
+    .konspekt ul, .konspekt ol { margin: 8px 0 10px; padding-left: 22px; line-height: 1.55; font-size: 1.02rem; }
+    .konspekt li { margin-bottom: 6px; }
+    .example { background: #fffbeb; border: 2px solid #fde68a; border-radius: 12px; padding: 14px 16px; font-size: 1.02rem; line-height: 1.55; margin: 0 0 14px; }
     .lesson { text-align: left; }
     .lesson h2 { text-align: center; }
     .theory { background: #f8fafc; border-radius: 12px; padding: 16px 18px; font-size: 1.05rem; line-height: 1.55; margin: 0 0 14px; }
@@ -171,13 +182,82 @@
           <div class="choice">
             <button type="button" class="choice-btn btn-roma" data-who="roma">Рома<small>квадратные уравнения + Dota 2 (25 вопросов)</small></button>
             <button type="button" class="choice-btn btn-tema" data-who="tema">Тёма<small>проценты: задача про театр (учебник)</small></button>
+            <button type="button" class="choice-btn btn-konspekt" data-who="konspekt">Конспект<small>теория на одной странице: квадратные уравнения, члены уравнения, теорема Виета</small></button>
           </div>
         </section>`;
       app.querySelectorAll('[data-who]').forEach(button => {
         button.addEventListener('click', () => {
-          button.dataset.who === 'roma' ? startRoma() : startTema();
+          if (button.dataset.who === 'roma') { startRoma(); }
+          else if (button.dataset.who === 'tema') { startTema(); }
+          else { showKonspekt(); }
         });
       });
+    }
+
+    function showKonspekt() {
+      app.innerHTML = `
+        <section class="card lesson konspekt">
+          <p class="progress">Конспект • всё на одной странице</p>
+          <p style="margin: 0 0 12px; text-align:center;"><span class="tag" style="background:#fef9c3;color:#854d0e;">КОНСПЕКТ</span></p>
+          <h2>Конспект</h2>
+          <nav class="toc">
+            <b>Содержание:</b>
+            1. <a href="#kvadratnye">Квадратные уравнения</a><br>
+            1.1. <a href="#chleny">Члены уравнения: старший, средний и свободный</a><br>
+            1.2. <a href="#vieta">Теорема Виета</a>
+          </nav>
+
+          <h3 id="kvadratnye">1. Квадратные уравнения</h3>
+          <div class="theory">
+            <p><b>Квадратное уравнение</b> — это уравнение вида:</p>
+            <span class="formula">ax² + bx + c = 0, где a ≠ 0</span>
+            <p style="margin-top:10px">Буквы <b>a, b, c</b> — это числа (коэффициенты). Буква <b>x</b> — неизвестное, которое надо найти.</p>
+            <p>Почему уравнение «квадратное»? Потому что самая большая степень x — вторая (x в квадрате).</p>
+            <p>Условие <b>a ≠ 0</b> обязательно: если a = 0, то член ax² исчезнет и уравнение станет линейным (bx + c = 0), а не квадратным.</p>
+          </div>
+
+          <h3 id="chleny">1.1. Члены уравнения: старший, средний и свободный</h3>
+          <div class="theory">
+            <p>У квадратного уравнения <b>ax² + bx + c = 0</b> три члена (три слагаемых слева):</p>
+            <p><b>1. Старший (главный, квадратичный) член — ax².</b> Это член с x². Он главный, потому что именно он делает уравнение квадратным. Число <b>a</b> называется <b>старшим (первым) коэффициентом</b>.</p>
+            <p><b>2. Средний (второй, линейный) член — bx.</b> Это член с x в первой степени. Число <b>b</b> называется <b>вторым (средним) коэффициентом</b>.</p>
+            <p><b>3. Свободный член — c.</b> Это обычное число без x. Он называется «свободным», потому что свободен от неизвестного x — в нём нет икса вообще.</p>
+            <span class="formula">ax² — старший член | bx — средний член | c — свободный член</span>
+          </div>
+          <div class="example"><b>Пример 1:</b> 3x² − 2x + 1 = 0.<br>Старший член: <b>3x²</b> (старший коэффициент a = 3).<br>Средний член: <b>−2x</b> (коэффициент b = −2, знак относится к члену!).<br>Свободный член: <b>1</b> (c = 1).</div>
+          <div class="example"><b>Пример 2:</b> x² − 5x + 6 = 0.<br>Старший член: <b>x²</b> (a = 1, единицу обычно не пишут).<br>Средний член: <b>−5x</b> (b = −5).<br>Свободный член: <b>6</b> (c = 6).</div>
+          <div class="example"><b>Пример 3:</b> 2x² + 3x + 1 = 0.<br>a = 2, b = 3, c = 1.<br>Старший член 2x², средний 3x, свободный член 1.</div>
+          <div class="theory">
+            <p><b>Запомнить просто:</b></p>
+            <p>• Видишь x² — это старший (главный) член.<br>• Видишь x без квадрата — это средний член.<br>• Видишь число без x — это свободный член.</p>
+            <p><b>Частые ошибки:</b> не теряй знак минус (в уравнении x² − 5x + 6 = 0 свободный член +6, а средний коэффициент −5, а не 5). И не путай: в вопросе «чему равен свободный член?» спрашивают число <b>c</b>, а в вопросе «назовите старший член» — всё выражение целиком, например <b>3x²</b>.</p>
+            <p><b>Неполные уравнения:</b> если b = 0 или c = 0, какого-то члена нет. Например, x² − 9 = 0 — нет среднего члена (b = 0), а x² − 4x = 0 — нет свободного члена (c = 0). Они всё равно квадратные и решаются проще обычного.</p>
+            <p><b>Приведённое уравнение:</b> если старший коэффициент a = 1, уравнение называют приведённым: x² + px + q = 0. Здесь p — это b, а q — это свободный член. Именно для таких уравнений удобнее всего теорема Виета.</p>
+          </div>
+
+          <h3 id="vieta">1.2. Теорема Виета</h3>
+          <div class="theory">
+            <p><b>Теорема Виета</b> связывает корни квадратного уравнения с его коэффициентами — можно найти или проверить корни без дискриминанта.</p>
+            <p><b>Для приведённого уравнения x² + px + q = 0</b> (если корни x₁ и x₂ существуют):</p>
+            <span class="formula">x₁ + x₂ = −p &nbsp;&nbsp;|&nbsp;&nbsp; x₁ × x₂ = q</span>
+            <p style="margin-top:10px">Словами: <b>сумма корней равна второму коэффициенту с обратным знаком, а произведение корней равно свободному члену</b>.</p>
+            <p><b>Для общего уравнения ax² + bx + c = 0:</b></p>
+            <span class="formula">x₁ + x₂ = −b / a &nbsp;&nbsp;|&nbsp;&nbsp; x₁ × x₂ = c / a</span>
+            <p style="margin-top:10px">Если a = 1, вторая формула превращается в первую.</p>
+            <p><b>Обратная теорема:</b> если два числа в сумме дают −p, а в произведении q, то они и есть корни уравнения x² + px + q = 0. Так корни можно подбирать устно.</p>
+          </div>
+          <div class="example"><b>Пример:</b> x² − 5x + 6 = 0. Здесь p = −5, q = 6.<br>По Виету: x₁ + x₂ = 5, x₁ × x₂ = 6.<br>Какие два числа дают в сумме 5, а в произведении 6? Это <b>2 и 3</b>. Проверка: 2 + 3 = 5, 2 × 3 = 6. Значит, корни — 2 и 3.</div>
+          <div class="theory">
+            <p><b>Как пользоваться:</b></p>
+            <p>1. Убедись, что уравнение приведённое (a = 1). Если нет — раздели всё на a.<br>2. Выпиши сумму (−p) и произведение (q).<br>3. Подбери два числа: начни с произведения (разложи свободный член на множители) и проверь сумму.<br>4. Проверь корни подстановкой в уравнение.</p>
+            <p><b>Важно:</b> Виет работает, только если у уравнения есть корни (дискриминант D ≥ 0). Если D &lt; 0, корней нет и подбирать нечего.</p>
+          </div>
+
+          <div class="nav">
+            <button class="btn-primary" type="button" id="konspekt-start">← К выбору Рома / Тёма</button>
+          </div>
+        </section>`;
+      app.querySelector('#konspekt-start').addEventListener('click', showStart);
     }
 
     function startRoma() { currentQuestion = 0; answers = []; showQuestion(); }
