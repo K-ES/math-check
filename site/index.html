@@ -475,55 +475,119 @@
       return out;
     }
 
-    function paraInnerToWord(p) {
-      let out = '';
-      p.childNodes.forEach(ch => {
-        if (ch.nodeType === 3) {
-          out += escXml(ch.nodeValue);
-        } else if (ch.nodeType === 1) {
-          if (ch.tagName === 'BR') { out += '<br/>'; }
-          else { out += escXml(ch.textContent); }
-        }
-      });
-      return out;
+    function wRun(text, bold, size) {
+      let pr = '';
+      if (bold || size) {
+        pr = '<w:rPr>' + (bold ? '<w:b/><w:bCs/>' : '') + (size ? '<w:sz w:val="' + size + '"/><w:szCs w:val="' + size + '"/>' : '') + '</w:rPr>';
+      }
+      return '<w:r>' + pr + '<w:t xml:space="preserve">' + escXml(text) + '</w:t></w:r>';
     }
 
-    function blockToWord(el) {
+    function paraTextToDocx(p) {
+      let inner = '';
+      p.childNodes.forEach(ch => {
+        if (ch.nodeType === 3) {
+          if (ch.nodeValue.trim() !== '' || ch.nodeValue.indexOf(' ') !== -1) inner += wRun(ch.nodeValue, false, 0);
+        } else if (ch.nodeType === 1) {
+          if (ch.tagName === 'BR') { inner += '<w:r><w:br/></w:r>'; }
+          else if (ch.tagName === 'B' || ch.tagName === 'STRONG') { inner += wRun(ch.textContent, true, 0); }
+          else { inner += wRun(ch.textContent, false, 0); }
+        }
+      });
+      return inner;
+    }
+
+    function blockToDocx(el) {
       const out = [];
       const tag = el.tagName || '';
       if (/^H[1-6]$/.test(tag)) {
         const t = (el.textContent || '').trim();
-        if (t) out.push('<h2>' + escXml(t) + '</h2>');
+        if (t) out.push('<w:p>' + wRun(t, true, 28) + '</w:p>');
       } else if (el.classList && (el.classList.contains('fline') || el.classList.contains('formula'))) {
-        out.push('<m:oMathPara><m:oMath>' + mathNodeToOmml(el) + '</m:oMath></m:oMathPara>');
-      } else if (tag === 'P') {
-        out.push('<p>' + paraInnerToWord(el) + '</p>');
-      } else if (el.classList && el.classList.contains('example')) {
-        let inner = '';
-        el.childNodes.forEach(ch => {
-          if (ch.nodeType === 3) { inner += escXml(ch.nodeValue); }
-          else if (ch.nodeType === 1 && ch.tagName === 'BR') { inner += '<br/>'; }
-          else if (ch.nodeType === 1) { inner += escXml(ch.textContent); }
-        });
-        if (inner.trim() !== '') out.push('<p>' + inner + '</p>');
+        out.push('<w:p><w:pPr><w:jc w:val="center"/></w:pPr><m:oMathPara><m:oMath>' + mathNodeToOmml(el) + '</m:oMath></m:oMathPara></w:p>');
+      } else if (tag === 'P' || (el.classList && el.classList.contains('example'))) {
+        const inner = paraTextToDocx(el);
+        if (inner.replace(/<[^>]+>/g, '').trim() !== '') out.push('<w:p>' + inner + '</w:p>');
       } else if (tag === 'BR') {
-        out.push('<br/>');
+        out.push('<w:p/>');
       } else {
-        let hasEl = false;
         el.childNodes.forEach(ch => {
           if (ch.nodeType === 3) {
-            if (ch.nodeValue.trim() !== '') out.push('<p>' + escXml(ch.nodeValue.trim()) + '</p>');
+            if (ch.nodeValue.trim() !== '') out.push('<w:p>' + wRun(ch.nodeValue.trim(), false, 0) + '</w:p>');
           } else if (ch.nodeType === 1) {
-            hasEl = true;
-            blockToWord(ch).forEach(s => out.push(s));
+            blockToDocx(ch).forEach(s => out.push(s));
           }
         });
-        if (!hasEl) {
-          const t = (el.textContent || '').trim();
-          if (t) out.push('<p>' + escXml(t) + '</p>');
-        }
       }
       return out;
+    }
+
+    function crc32bytes(bytes) {
+      let table = crc32bytes._t;
+      if (!table) {
+        table = crc32bytes._t = new Int32Array(256);
+        for (let n = 0; n < 256; n++) {
+          let c = n;
+          for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+          table[n] = c;
+        }
+      }
+      let crc = 0xFFFFFFFF;
+      for (let i = 0; i < bytes.length; i++) crc = table[(crc ^ bytes[i]) & 0xFF] ^ (crc >>> 8);
+      return (crc ^ 0xFFFFFFFF) >>> 0;
+    }
+
+    function zipStore(files) {
+      const enc = new TextEncoder();
+      const chunks = [];
+      const central = [];
+      let offset = 0;
+      const dosTime = (12 << 11);
+      const dosDate = ((2024 - 1980) << 9) | (1 << 5) | 1;
+      function u16(v, arr) { arr.push(v & 0xFF, (v >>> 8) & 0xFF); }
+      function u32(v, arr) { arr.push(v & 0xFF, (v >>> 8) & 0xFF, (v >>> 16) & 0xFF, (v >>> 24) & 0xFF); }
+      files.forEach(f => {
+        const nameBytes = enc.encode(f.name);
+        const crc = crc32bytes(f.data);
+        const lh = [];
+        u32(0x04034b50, lh);
+        u16(20, lh);
+        u16(0x0800, lh);
+        u16(0, lh);
+        u16(dosTime, lh);
+        u16(dosDate, lh);
+        u32(crc, lh);
+        u32(f.data.length, lh);
+        u32(f.data.length, lh);
+        u16(nameBytes.length, lh);
+        u16(0, lh);
+        const header = new Uint8Array(lh);
+        chunks.push(header, nameBytes, f.data);
+        const cd = [];
+        u32(0x02014b50, cd);
+        u16(20, cd); u16(20, cd);
+        u16(0x0800, cd); u16(0, cd);
+        u16(dosTime, cd); u16(dosDate, cd);
+        u32(crc, cd);
+        u32(f.data.length, cd); u32(f.data.length, cd);
+        u16(nameBytes.length, cd);
+        u16(0, cd); u16(0, cd); u16(0, cd); u16(0, cd);
+        u32(0, cd);
+        u32(offset, cd);
+        central.push(new Uint8Array(cd), nameBytes);
+        offset += header.length + nameBytes.length + f.data.length;
+      });
+      const cdStart = offset;
+      let cdSize = 0;
+      central.forEach(c => { chunks.push(c); cdSize += c.length; offset += c.length; });
+      const end = [];
+      u32(0x06054b50, end);
+      u16(0, end); u16(0, end);
+      u16(files.length, end); u16(files.length, end);
+      u32(cdSize, end); u32(cdStart, end);
+      u16(0, end);
+      chunks.push(new Uint8Array(end));
+      return chunks;
     }
 
     function exportKonspektWord() {
@@ -536,19 +600,22 @@
       const title = titles[konspektView] || titles.quad;
       const src = document.querySelector('#konspekt-content');
       if (!src) return;
-      let bodyWord = '';
+      const paras = ['<w:p>' + wRun(title, true, 32) + '</w:p>'];
       src.childNodes.forEach(ch => {
-        if (ch.nodeType === 3) {
-          if (ch.nodeValue.trim() !== '') bodyWord += '<p>' + escXml(ch.nodeValue.trim()) + '</p>';
-        } else if (ch.nodeType === 1) {
-          bodyWord += blockToWord(ch).join('');
-        }
+        if (ch.nodeType === 1) blockToDocx(ch).forEach(s => paras.push(s));
       });
-      const html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="UTF-8"><title>' + escXml(title) + '</title></head><body><h1>' + escXml(title) + '</h1>' + bodyWord + '</body></html>';
-      const blob = new Blob(['﻿', html], { type: 'application/msword' });
+      const docXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math"><w:body>' + paras.join('') + '<w:sectPr><w:pgSz w:w="11906" w:h="16838"/></w:sectPr></w:body></w:document>';
+      const typesXml = '<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.open-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>';
+      const relsXml = '<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>';
+      const enc = new TextEncoder();
+      const blob = new Blob(zipStore([
+        { name: '[Content_Types].xml', data: enc.encode(typesXml) },
+        { name: '_rels/.rels', data: enc.encode(relsXml) },
+        { name: 'word/document.xml', data: enc.encode(docXml) }
+      ]), { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = (isRu ? 'konspekt-' : 'notes-') + konspektView + '.doc';
+      a.download = (isRu ? 'konspekt-' : 'notes-') + konspektView + '.docx';
       document.body.appendChild(a);
       a.click();
       setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 200);
