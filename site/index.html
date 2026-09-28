@@ -97,11 +97,22 @@
     .cheat h3 { margin: 0 0 10px; }
     .cheat .formula { margin-bottom: 8px; }
     .hint { text-align: center; color: #64748b; font-size: .92rem; margin: 0 0 14px; }
-    .term { border-bottom: 1px dashed #2563eb; cursor: help; position: relative; white-space: nowrap; }
+    .back-top { margin: 0 0 14px; width: auto; padding: 10px 18px; font-size: .95rem; background: #e2e8f0; color: #334155; }
+    .back-top:hover, .back-top:focus-visible { background: #cbd5e1; }
+    .konspekt-layout { display: grid; grid-template-columns: 230px 1fr; gap: 18px; align-items: start; }
+    .k-side { position: sticky; top: 16px; background: #f8fafc; border-radius: 12px; padding: 14px 16px; text-align: left; font-size: .95rem; line-height: 1.6; }
+    .k-side b.side-title { display: block; margin: 10px 0 6px; font-size: .85rem; text-transform: uppercase; letter-spacing: .04em; color: #64748b; }
+    .k-side b.side-title:first-child { margin-top: 0; }
+    .k-side a { display: block; color: #2563eb; text-decoration: none; font-weight: 700; padding: 3px 0; }
+    .k-side a:hover { text-decoration: underline; }
+    .k-main { min-width: 0; }
+    .formula-line { display: block; margin-top: 8px; padding: 10px; background: #fff; border-radius: 8px; font-weight: 700; text-align: center; }
+    .term { border-bottom: 1px dashed #2563eb; cursor: help; position: relative; }
     .term:hover::after, .term:focus::after { content: attr(data-tip); position: absolute; left: 50%; transform: translateX(-50%); bottom: 135%; background: #0f172a; color: #fff; padding: 6px 10px; border-radius: 8px; font-size: .85rem; font-weight: 700; white-space: nowrap; z-index: 20; pointer-events: none; }
     .solution-box { background: #eff6ff; border: 2px solid #bfdbfe; border-radius: 12px; padding: 16px 18px; font-size: 1.05rem; line-height: 1.55; margin: 14px 0 0; text-align: left; }
     .fail-title { color: #b91c1c; }
     .win-title { color: #166534; }
+    @media (max-width: 760px) { .konspekt-layout { grid-template-columns: 1fr; } .k-side { position: static; } }
     @media (max-width: 640px) { .choice-main { grid-template-columns: 1fr; } }
     @media (max-width: 420px) { .card { padding: 30px 20px; } .answers { grid-template-columns: 1fr; } .nav { flex-direction: column; } .vs-grid { grid-template-columns: 1fr; } }
   </style>
@@ -194,37 +205,29 @@
       }
     ];
 
-    // ===== Конспект: быстрые записки + подробный, RU/EN =====
-    const cheatRU = `
+    // ===== Конспект: краткий (только формулы, без слов) + подробный, RU/EN =====
+    const cheatHTML = `
       <div class="cheat">
-        <h3>⚡ Быстрые записки — только формулы</h3>
-        <span class="formula">ax² + bx + c = 0, где a ≠ 0</span>
-        <span class="formula">ax² — старший член | bx — средний член | c — свободный член</span>
+        <h3 id="cheat-quad">Квадратные уравнения / Quadratic equations</h3>
+        <span class="formula">ax² + bx + c = 0</span>
+        <span class="formula">a ≠ 0</span>
         <span class="formula">D = b² − 4ac</span>
-        <span class="formula">D &gt; 0 → 2 корня | D = 0 → 1 корень | D &lt; 0 → нет корней</span>
+        <span class="formula">D &gt; 0 → 2</span>
+        <span class="formula">D = 0 → 1</span>
+        <span class="formula">D &lt; 0 → 0</span>
         <span class="formula">x = (−b ± √D) / 2a</span>
-        <span class="formula">x² + px + q = 0: x₁ + x₂ = −p, x₁ · x₂ = q</span>
-        <span class="formula">ax² + bx + c = 0: x₁ + x₂ = −b/a, x₁ · x₂ = c/a</span>
+        <h3 id="cheat-vieta" style="margin-top:16px;">Теорема Виета / Vieta's theorem</h3>
+        <span class="formula">x² + px + q = 0</span>
+        <span class="formula">x₁ + x₂ = −p</span>
+        <span class="formula">x₁ · x₂ = q</span>
+        <span class="formula">ax² + bx + c = 0</span>
+        <span class="formula">x₁ + x₂ = −b / a</span>
+        <span class="formula">x₁ · x₂ = c / a</span>
       </div>`;
-    const cheatEN = `
-      <div class="cheat">
-        <h3>⚡ Quick notes — formulas only</h3>
-        <span class="formula">ax² + bx + c = 0, where a ≠ 0</span>
-        <span class="formula">ax² — leading term | bx — middle term | c — constant term</span>
-        <span class="formula">D = b² − 4ac</span>
-        <span class="formula">D &gt; 0 → 2 roots | D = 0 → 1 root | D &lt; 0 → no roots</span>
-        <span class="formula">x = (−b ± √D) / 2a</span>
-        <span class="formula">x² + px + q = 0: x₁ + x₂ = −p, x₁ · x₂ = q</span>
-        <span class="formula">ax² + bx + c = 0: x₁ + x₂ = −b/a, x₁ · x₂ = c/a</span>
-      </div>`;
+    const cheatRU = cheatHTML;
+    const cheatEN = cheatHTML;
 
     const detailRU = `
-          <nav class="toc">
-            <b>Содержание:</b>
-            1. <a href="#kvadratnye">Квадратные уравнения</a><br>
-            1.1. <a href="#chleny">Члены уравнения: старший, средний и свободный</a><br>
-            1.2. <a href="#vieta">Теорема Виета</a>
-          </nav>
           <h3 id="kvadratnye">1. Квадратные уравнения</h3>
           <div class="theory">
             <p><span class="term" data-tip="quadratic equation" tabindex="0"><b>Квадратное уравнение</b></span> — это <span class="term" data-tip="equation" tabindex="0">уравнение</span> вида:</p>
@@ -239,7 +242,9 @@
             <p><b>1. <span class="term" data-tip="leading (quadratic) term" tabindex="0">Старший (главный, квадратичный) член</span> — ax².</b> Это член с x². Он главный, потому что именно он делает уравнение квадратным. Число <b>a</b> называется <span class="term" data-tip="leading coefficient" tabindex="0"><b>старшим (первым) коэффициентом</b></span>.</p>
             <p><b>2. <span class="term" data-tip="middle (linear) term" tabindex="0">Средний (второй, линейный) член</span> — bx.</b> Это член с x в первой степени. Число <b>b</b> называется <span class="term" data-tip="middle coefficient" tabindex="0"><b>вторым (средним) коэффициентом</b></span>.</p>
             <p><b>3. <span class="term" data-tip="constant term" tabindex="0">Свободный член</span> — c.</b> Это обычное число без x. Он называется «свободным», потому что свободен от неизвестного x — в нём нет икса вообще.</p>
-            <span class="formula">ax² — старший член | bx — средний член | c — свободный член</span>
+            <span class="formula">ax² — старший член</span>
+            <span class="formula">bx — средний член</span>
+            <span class="formula">c — свободный член</span>
           </div>
           <div class="example"><b>Пример 1:</b> 3x² − 2x + 1 = 0.<br>Старший член: <b>3x²</b> (старший коэффициент a = 3).<br>Средний член: <b>−2x</b> (коэффициент b = −2, знак относится к члену!).<br>Свободный член: <b>1</b> (c = 1).</div>
           <div class="example"><b>Пример 2:</b> x² − 5x + 6 = 0.<br>Старший член: <b>x²</b> (a = 1, единицу обычно не пишут).<br>Средний член: <b>−5x</b> (b = −5).<br>Свободный член: <b>6</b> (c = 6).</div>
@@ -255,10 +260,14 @@
           <div class="theory">
             <p><span class="term" data-tip="Vieta's theorem" tabindex="0"><b>Теорема Виета</b></span> связывает <span class="term" data-tip="roots" tabindex="0"><b>корни</b></span> квадратного уравнения с его коэффициентами — можно найти или проверить корни без <span class="term" data-tip="discriminant" tabindex="0">дискриминанта</span>.</p>
             <p><b>Для приведённого уравнения x² + px + q = 0</b> (если корни x₁ и x₂ существуют):</p>
-            <span class="formula">x₁ + x₂ = −p &nbsp;&nbsp;|&nbsp;&nbsp; x₁ × x₂ = q</span>
+            <span class="formula">x² + px + q = 0</span>
+            <span class="formula">x₁ + x₂ = −p</span>
+            <span class="formula">x₁ · x₂ = q</span>
             <p style="margin-top:10px">Словами: <span class="term" data-tip="sum of roots" tabindex="0"><b>сумма корней</b></span> равна второму коэффициенту с обратным знаком, а <span class="term" data-tip="product of roots" tabindex="0"><b>произведение корней</b></span> равно свободному члену.</p>
             <p><b>Для общего уравнения ax² + bx + c = 0:</b></p>
-            <span class="formula">x₁ + x₂ = −b / a &nbsp;&nbsp;|&nbsp;&nbsp; x₁ × x₂ = c / a</span>
+            <span class="formula">ax² + bx + c = 0</span>
+            <span class="formula">x₁ + x₂ = −b / a</span>
+            <span class="formula">x₁ · x₂ = c / a</span>
             <p style="margin-top:10px">Если a = 1, вторая формула превращается в первую.</p>
             <p><b>Обратная теорема:</b> если два числа в сумме дают −p, а в произведении q, то они и есть корни уравнения x² + px + q = 0. Так корни можно подбирать устно.</p>
           </div>
@@ -270,12 +279,6 @@
           </div>`;
 
     const detailEN = `
-          <nav class="toc">
-            <b>Contents:</b>
-            1. <a href="#kvadratnye">Quadratic equations</a><br>
-            1.1. <a href="#chleny">Terms: leading, middle, constant</a><br>
-            1.2. <a href="#vieta">Vieta's theorem</a>
-          </nav>
           <h3 id="kvadratnye">1. Quadratic equations</h3>
           <div class="theory">
             <p><span class="term" data-tip="квадратное уравнение" tabindex="0"><b>Quadratic equation</b></span> is an <span class="term" data-tip="уравнение" tabindex="0">equation</span> of the form:</p>
@@ -290,7 +293,9 @@
             <p><b>1. <span class="term" data-tip="старший (главный) член" tabindex="0">Leading (quadratic) term</span> — ax².</b> The term with x². It is the main one, it makes the equation quadratic. Number <b>a</b> is called the <span class="term" data-tip="старший коэффициент" tabindex="0"><b>leading coefficient</b></span>.</p>
             <p><b>2. <span class="term" data-tip="средний член" tabindex="0">Middle (linear) term</span> — bx.</b> The term with x to the first power. Number <b>b</b> is called the <span class="term" data-tip="средний коэффициент" tabindex="0"><b>middle coefficient</b></span>.</p>
             <p><b>3. <span class="term" data-tip="свободный член" tabindex="0">Constant term</span> — c.</b> A plain number without x. It is «free» because it is free from the unknown x.</p>
-            <span class="formula">ax² — leading term | bx — middle term | c — constant term</span>
+            <span class="formula">ax² — leading term</span>
+            <span class="formula">bx — middle term</span>
+            <span class="formula">c — constant term</span>
           </div>
           <div class="example"><b>Example 1:</b> 3x² − 2x + 1 = 0.<br>Leading term: <b>3x²</b> (leading coefficient a = 3).<br>Middle term: <b>−2x</b> (coefficient b = −2, the sign belongs to the term!).<br>Constant term: <b>1</b> (c = 1).</div>
           <div class="example"><b>Example 2:</b> x² − 5x + 6 = 0.<br>Leading term: <b>x²</b> (a = 1, we usually do not write 1).<br>Middle term: <b>−5x</b> (b = −5).<br>Constant term: <b>6</b> (c = 6).</div>
@@ -306,10 +311,14 @@
           <div class="theory">
             <p><span class="term" data-tip="теорема Виета" tabindex="0"><b>Vieta's theorem</b></span> connects the <span class="term" data-tip="корни" tabindex="0"><b>roots</b></span> of a quadratic equation with its coefficients — you can find or check roots without the <span class="term" data-tip="дискриминант" tabindex="0">discriminant</span>.</p>
             <p><b>For a monic equation x² + px + q = 0</b> (if roots x₁ and x₂ exist):</p>
-            <span class="formula">x₁ + x₂ = −p &nbsp;&nbsp;|&nbsp;&nbsp; x₁ × x₂ = q</span>
+            <span class="formula">x² + px + q = 0</span>
+            <span class="formula">x₁ + x₂ = −p</span>
+            <span class="formula">x₁ · x₂ = q</span>
             <p style="margin-top:10px">In words: the <span class="term" data-tip="сумма корней" tabindex="0"><b>sum of roots</b></span> equals the second coefficient with the opposite sign, and the <span class="term" data-tip="произведение корней" tabindex="0"><b>product of roots</b></span> equals the constant term.</p>
             <p><b>For a general equation ax² + bx + c = 0:</b></p>
-            <span class="formula">x₁ + x₂ = −b / a &nbsp;&nbsp;|&nbsp;&nbsp; x₁ × x₂ = c / a</span>
+            <span class="formula">ax² + bx + c = 0</span>
+            <span class="formula">x₁ + x₂ = −b / a</span>
+            <span class="formula">x₁ · x₂ = c / a</span>
             <p style="margin-top:10px">If a = 1, the second formula becomes the first one.</p>
             <p><b>Converse theorem:</b> if two numbers give −p in sum and q in product, they are the roots of x² + px + q = 0. So roots can be guessed.</p>
           </div>
@@ -319,6 +328,52 @@
             <p>1. Check that the equation is monic (a = 1). If not — divide everything by a.<br>2. Write the sum (−p) and the product (q).<br>3. Guess two numbers: start from the product (split the constant term into factors) and check the sum.<br>4. Check the roots by putting them into the equation.</p>
             <p><b>Important:</b> Vieta works only if the equation has roots (discriminant D ≥ 0). If D &lt; 0, there are no roots and there is nothing to guess.</p>
           </div>`;
+
+    // ===== Словарь для всплывающих переводов каждого слова =====
+    const ruToEn = { 'без':'without', 'большая':'largest', 'буква':'letter', 'буквы':'letters', 'важно':'important', 'вида':'form', 'видишь':'you see', 'виет':'Vieta', 'виета':"Vieta's", 'виету':'Vieta', 'вообще':'generally', 'вопросе':'in the question', 'всего':'most', 'всё':'everything', 'все':'all', 'вторая':'second', 'второй':'second', 'второму':'to the second', 'вторым':'second', 'выпиши':'write down', 'выбор':'choice', 'выражение':'expression', 'где':'where', 'главный':'main', 'дают':'give', 'два':'two', 'делает':'makes', 'дискриминант':'discriminant', 'дискриминанта':'discriminant', 'для':'for', 'его':'its', 'единицу':'one', 'если':'if', 'есть':'there are', 'запомнить':'remember', 'здесь':'here', 'знак':'sign', 'знаком':'with the opposite sign', 'значит':'means', 'знать':'know', 'икса':'of x', 'или':'or', 'именно':'exactly', 'исчезнет':'disappears', 'как':'how', 'какие':'which', 'какого':'of which', 'квадрата':'square', 'квадрате':'squared', 'квадратичный':'quadratic', 'квадратного':'quadratic', 'квадратное':'quadratic', 'квадратные':'quadratic', 'квадратным':'quadratic', 'конспект':'notes', 'конспекта':'of the notes', 'корней':'of roots', 'корни':'roots', 'корень':'root', 'которое':'which', 'коэффициент':'coefficient', 'коэффициентами':'with coefficients', 'коэффициентом':'with the coefficient', 'коэффициенту':'to the coefficient', 'коэффициенты':'coefficients', 'краткий':'quick', 'краткого':'quick', 'линейный':'linear', 'линейным':'linear', 'минус':'minus', 'множители':'factors', 'можно':'you can', 'мышь':'mouse', 'мышкой':'with the mouse', 'на':'on', 'назад':'back', 'надо':'need', 'назовите':'name', 'называется':'is called', 'называют':'call', 'найти':'find', 'наведи':'point', 'например':'for example', 'начни':'start', 'не':'not', 'неизвестного':'of the unknown', 'неизвестное':'unknown', 'неполные':'incomplete', 'нет':'no', 'нечего':'nothing', 'нём':'in it', 'обратная':'converse', 'обратным':'opposite', 'общего':'general', 'оглавление':'contents', 'обычно':'usually', 'обычное':'plain', 'обязательно':'necessarily', 'он':'it', 'они':'they', 'от':'from', 'относится':'belongs', 'ошибки':'mistakes', 'ошибка':'mistake', 'первой':'first', 'первую':'first', 'первым':'first', 'перевод':'translation', 'пишут':'write', 'по':'by', 'подбери':'pick', 'подбирать':'to guess', 'подробный':'detailed', 'подробного':'detailed', 'подстановкой':'by substitution', 'подчёркнутое':'underlined', 'подчеркнутое':'underlined', 'пользоваться':'to use', 'потому':'because', 'почему':'why', 'превращается':'becomes', 'приведённого':'monic', 'приведённое':'monic', 'приведённым':'monic', 'пример':'example', 'проверить':'check', 'проверка':'check', 'проверь':'check', 'произведение':'product', 'произведении':'in product', 'произведения':'of product', 'просто':'simply', 'путай':'confuse', 'работает':'works', 'равен':'equals', 'равна':'equals', 'равно':'equals', 'раздели':'divide', 'раздел':'section', 'разделы':'sections', 'разложи':'split', 'русский':'Russian', 'английский':'English', 'самая':'the most', 'свободен':'free', 'свободного':'of the constant term', 'свободному':'to the constant term', 'свободный':'constant', 'свободным':'constant', 'связывает':'connects', 'слагаемых':'of terms', 'слева':'on the left', 'слов':'of words', 'слова':'words', 'словами':'in words', 'слово':'word', 'содержание':'contents', 'спрашивают':'ask', 'среднего':'of the middle', 'средний':'middle', 'средним':'middle', 'станет':'becomes', 'старший':'leading', 'старшим':'leading', 'степени':'of power', 'степень':'power', 'сумма':'sum', 'сумме':'in sum', 'сумму':'sum', 'существуют':'exist', 'так':'so', 'таких':'such', 'тема':'topic', 'темы':'topics', 'темам':'topics', 'теорема':'theorem', 'теоремы':'of the theorem', 'теряй':'lose', 'то':'then', 'только':'only', 'три':'three', 'убедись':'make sure', 'увидишь':'you will see', 'удобнее':'easier', 'уравнение':'equation', 'уравнении':'in the equation', 'уравнений':'of equations', 'уравнения':'equation', 'условие':'condition', 'устно':'mentally', 'формула':'formula', 'формулы':'formulas', 'целиком':'entirely', 'частые':'common', 'чему':'what', 'числа':'numbers', 'число':'number', 'чисто':'purely', 'член':'term', 'члена':'of the term', 'члену':'to the term', 'члены':'terms', 'что':'what', 'это':'this', 'быстрые':'quick', 'быстрый':'quick', 'записки':'notes' };
+    const enToRu = { 'an':'артикль', 'and':'и', 'are':'есть', 'all':'все', 'back':'назад', 'be':'быть', 'because':'потому что', 'becomes':'становится', 'belongs':'относится', 'brief':'краткий', 'by':'по', 'called':'называется', 'can':'можно', 'check':'проверить', 'choice':'выбор', 'coefficient':'коэффициент', 'coefficients':'коэффициенты', 'common':'частые', 'condition':'условие', 'connects':'связывает', 'constant':'свободный член', 'contents':'содержание', 'converse':'обратная', 'detailed':'подробный', 'disappears':'исчезает', 'discriminant':'дискриминант', 'divide':'разделить', 'do':'делать', 'easiest':'проще всего', 'easy':'просто', 'english':'английский', 'equals':'равно', 'equation':'уравнение', 'equations':'уравнения', 'everything':'всё', 'example':'пример', 'exist':'существуют', 'factors':'множители', 'find':'найти', 'first':'первый', 'for':'для', 'form':'вид', 'formula':'формула', 'formulas':'формулы', 'free':'свободный', 'from':'от', 'general':'общий', 'give':'дают', 'guess':'подобрать', 'guessed':'подобранные', 'has':'имеет', 'here':'здесь', 'highest':'наибольшая', 'hover':'наведи', 'how':'как', 'if':'если', 'important':'важно', 'in':'в', 'incomplete':'неполные', 'into':'в', 'is':'есть', 'it':'оно', 'its':'его', 'know':'знать', 'leading':'старший', 'left':'слева', 'letter':'буква', 'letters':'буквы', 'linear':'линейный', 'lose':'терять', 'main':'главный', 'makes':'делает', 'middle':'средний', 'minus':'минус', 'missing':'нет', 'mistakes':'ошибки', 'monic':'приведённое', 'mouse':'мышь', 'need':'нужно', 'no':'нет', 'notes':'конспект', 'not':'не', 'nothing':'нечего', 'number':'число', 'numbers':'числа', 'of':'из', 'on':'на', 'one':'один', 'only':'только', 'opposite':'обратный', 'or':'или', 'over':'над', 'parts':'части', 'plain':'обычное', 'point':'наведи', 'power':'степень', 'product':'произведение', 'putting':'подставляя', 'quadratic':'квадратное', 'quick':'быстрые', 'required':'обязательно', 'roots':'корни', 'root':'корень', 'rule':'правило', 'russian':'русский', 'second':'второй', 'see':'видеть', 'section':'раздел', 'sections':'разделы', 'short':'краткий', 'sign':'знак', 'so':'так', 'some':'некоторые', 'split':'разложить', 'square':'квадрат', 'squared':'в квадрате', 'start':'начать', 'such':'такие', 'sum':'сумма', 'term':'член', 'terms':'члены', 'that':'что', 'the':'артикль', 'them':'их', 'theorem':'теорема', 'there':'там', 'they':'они', 'three':'три', 'to':'в', 'topic':'тема', 'topics':'темы', 'two':'два', 'underlined':'подчёркнутое', 'unknown':'неизвестное', 'up':'наверх', 'use':'использовать', 'usually':'обычно', 'vieta':'Виет', 'we':'мы', 'where':'где', 'which':'которые', 'why':'почему', 'will':'будешь', 'with':'с', 'without':'без', 'word':'слово', 'words':'слова', 'works':'работает', 'write':'писать', 'you':'ты', 'translation':'перевод' };
+
+    function enableWordTooltips(root) {
+      if (!root) return;
+      const dict = konspektLang === 'ru' ? ruToEn : enToRu;
+      const skip = new Set(['ax', 'bx', 'px', 'qx', 'lt', 'gt', 'amp', 'nbsp']);
+      const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+        acceptNode(node) {
+          if (!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+          const p = node.parentElement;
+          if (!p) return NodeFilter.FILTER_REJECT;
+          if (p.closest('.term')) return NodeFilter.FILTER_REJECT;
+          return NodeFilter.FILTER_ACCEPT;
+        }
+      });
+      const nodes = [];
+      while (walker.nextNode()) nodes.push(walker.currentNode);
+      for (const node of nodes) {
+        const parts = node.nodeValue.split(/([A-Za-zА-Яа-яЁё]+)/g);
+        if (parts.length <= 1) continue;
+        const frag = document.createDocumentFragment();
+        for (const part of parts) {
+          if (/^[A-Za-zА-Яа-яЁё]+$/.test(part)) {
+            const low = part.toLowerCase();
+            if (skip.has(low)) { frag.appendChild(document.createTextNode(part)); continue; }
+            const tr = dict[low];
+            if (tr) {
+              const s = document.createElement('span');
+              s.className = 'term';
+              s.tabIndex = 0;
+              s.dataset.tip = tr;
+              s.textContent = part;
+              frag.appendChild(s);
+            } else {
+              frag.appendChild(document.createTextNode(part));
+            }
+          } else {
+            frag.appendChild(document.createTextNode(part));
+          }
+        }
+        node.parentNode.replaceChild(frag, node);
+      }
+    }
 
     const app = document.querySelector('#app');
     let currentQuestion = 0;
@@ -350,6 +405,7 @@
     function showKonspekt() {
       app.innerHTML = `
         <section class="card lesson konspekt">
+          <button class="btn-secondary back-top" type="button" id="konspekt-start">← Назад</button>
           <p class="progress">Конспект • всё на одной странице</p>
           <p style="margin: 0 0 12px; text-align:center;"><span class="tag" style="background:#fef9c3;color:#854d0e;">КОНСПЕКТ / NOTES</span></p>
           <h2 id="konspekt-title">Конспект</h2>
@@ -358,10 +414,12 @@
             <button type="button" class="lang-btn" id="lang-en">English</button>
           </div>
           <p class="hint" id="konspekt-hint"></p>
-          <div id="konspekt-cheat"></div>
-          <div id="konspekt-detail"></div>
-          <div class="nav">
-            <button class="btn-primary" type="button" id="konspekt-start">← К выбору Рома / Тёма</button>
+          <div class="konspekt-layout">
+            <aside class="k-side" id="konspekt-side"></aside>
+            <div class="k-main">
+              <div id="konspekt-cheat"></div>
+              <div id="konspekt-detail"></div>
+            </div>
           </div>
         </section>`;
       app.querySelector('#konspekt-start').addEventListener('click', showStart);
@@ -369,6 +427,21 @@
       app.querySelector('#lang-en').addEventListener('click', () => { konspektLang = 'en'; renderKonspektLang(); });
       renderKonspektLang();
     }
+
+    const sideRU = `
+      <b class="side-title">Краткий конспект — формулы</b>
+      <a href="#cheat-quad">Квадратные уравнения</a>
+      <a href="#cheat-vieta">Теорема Виета</a>
+      <b class="side-title">Подробный конспект</b>
+      <a href="#kvadratnye">Квадратные уравнения</a>
+      <a href="#vieta">Теорема Виета</a>`;
+    const sideEN = `
+      <b class="side-title">Quick notes — formulas</b>
+      <a href="#cheat-quad">Quadratic equations</a>
+      <a href="#cheat-vieta">Vieta's theorem</a>
+      <b class="side-title">Detailed notes</b>
+      <a href="#kvadratnye">Quadratic equations</a>
+      <a href="#vieta">Vieta's theorem</a>`;
 
     function renderKonspektLang() {
       const isRu = konspektLang === 'ru';
@@ -378,14 +451,19 @@
       if (btnEn) btnEn.classList.toggle('active', !isRu);
       const title = app.querySelector('#konspekt-title');
       const hint = app.querySelector('#konspekt-hint');
+      const side = app.querySelector('#konspekt-side');
       const cheat = app.querySelector('#konspekt-cheat');
       const detail = app.querySelector('#konspekt-detail');
       if (title) title.textContent = isRu ? 'Конспект' : 'Notes';
       if (hint) hint.textContent = isRu
-        ? 'Наведи мышкой на подчёркнутое слово — увидишь перевод на английский'
-        : 'Hover over an underlined word to see the Russian translation';
+        ? 'Наведи мышкой на любое слово — увидишь перевод на английский'
+        : 'Hover over any word to see the Russian translation';
+      if (side) side.innerHTML = isRu ? sideRU : sideEN;
       if (cheat) cheat.innerHTML = isRu ? cheatRU : cheatEN;
       if (detail) detail.innerHTML = isRu ? detailRU : detailEN;
+      enableWordTooltips(app.querySelector('#konspekt-side'));
+      enableWordTooltips(app.querySelector('#konspekt-hint'));
+      enableWordTooltips(app.querySelector('#konspekt-detail'));
     }
 
     function startRoma() { currentQuestion = 0; showQuestion(); }
