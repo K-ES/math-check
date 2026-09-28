@@ -93,6 +93,9 @@
     .lang-switch { display: flex; gap: 8px; justify-content: center; margin: 0 0 12px; }
     .lang-btn { padding: 10px 22px; font-size: 1rem; background: #e2e8f0; color: #334155; }
     .lang-btn.active { background: #2563eb; color: #fff; }
+    .word-btn { background: #16a34a; color: #fff; }
+    .word-btn:hover, .word-btn:focus-visible { background: #15803d; }
+    .fline { text-align: center; font-size: 1.3rem; line-height: 2.4; font-weight: 700; margin: 6px 0; }
     .cheat { background: #f0fdf4; border: 2px solid #bbf7d0; border-radius: 12px; padding: 16px 18px; margin: 0 0 16px; }
     .cheat h3 { margin: 0 0 10px; }
     .cheat .formula { margin-bottom: 8px; }
@@ -219,19 +222,23 @@
     const cheatHTML = `
       <div class="cheat" id="cheat">
         <h3 id="cheat-quad">Квадратные уравнения / Quadratic equations</h3>
-        <div class="fbook">ax² + bx + c = 0, &nbsp;a ≠ 0</div>
-        <div class="fbook">D = b² − 4ac</div>
-        <div class="fbook">x = <span class="frac"><span class="fnum">−b ± <span class="sqrt"><span class="rad">√</span><span class="rbody">D</span></span></span><span class="fden">2a</span></span></div>
-        <div class="fbook">D &gt; 0 → x₁, x₂</div>
-        <div class="fbook">D = 0 → x = <span class="frac"><span class="fnum">−b</span><span class="fden">2a</span></span></div>
-        <div class="fbook">D &lt; 0 → ∅</div>
-        <h3 id="cheat-vieta" style="margin-top:16px;">Теорема Виета / Vieta's theorem</h3>
-        <div class="fbook">x² + px + q = 0</div>
-        <div class="fbook">x₁ + x₂ = −p</div>
-        <div class="fbook">x₁ · x₂ = q</div>
-        <div class="fbook">ax² + bx + c = 0</div>
-        <div class="fbook">x₁ + x₂ = <span class="frac"><span class="fnum">−b</span><span class="fden">a</span></span></div>
-        <div class="fbook">x₁ · x₂ = <span class="frac"><span class="fnum">c</span><span class="fden">a</span></span></div>
+        <div class="fline">ax² + bx + c = 0, &nbsp;a ≠ 0</div>
+        <div class="fline">D = b² − 4ac</div>
+        <div class="fline">x₁,₂ = <span class="frac"><span class="fnum">−b ± <span class="sqrt"><span class="rad">√</span><span class="rbody">D</span></span></span><span class="fden">2a</span></span></div>
+        <div class="fline">x₁ = <span class="frac"><span class="fnum">−b − <span class="sqrt"><span class="rad">√</span><span class="rbody">D</span></span></span><span class="fden">2a</span></span></div>
+        <div class="fline">x₂ = <span class="frac"><span class="fnum">−b + <span class="sqrt"><span class="rad">√</span><span class="rbody">D</span></span></span><span class="fden">2a</span></span></div>
+        <div class="fline">D &gt; 0 → x₁, x₂</div>
+        <div class="fline">D = 0 → x = <span class="frac"><span class="fnum">−b</span><span class="fden">2a</span></span></div>
+        <div class="fline">D &lt; 0 → ∅</div>
+      </div>
+      <div class="cheat">
+        <h3 id="cheat-vieta">Теорема Виета / Vieta's theorem</h3>
+        <div class="fline">x² + px + q = 0</div>
+        <div class="fline">x₁ + x₂ = −p</div>
+        <div class="fline">x₁ · x₂ = q</div>
+        <div class="fline">ax² + bx + c = 0</div>
+        <div class="fline">x₁ + x₂ = <span class="frac"><span class="fnum">−b</span><span class="fden">a</span></span></div>
+        <div class="fline">x₁ · x₂ = <span class="frac"><span class="fnum">c</span><span class="fden">a</span></span></div>
       </div>`;
     const cheatRU = cheatHTML;
     const cheatEN = cheatHTML;
@@ -277,8 +284,8 @@
             <p style="margin-top:10px">Словами: <span class="term" data-tip="sum of roots" tabindex="0"><b>сумма корней</b></span> равна второму коэффициенту с обратным знаком, а <span class="term" data-tip="product of roots" tabindex="0"><b>произведение корней</b></span> равно свободному члену.</p>
             <p><b>Для общего уравнения ax² + bx + c = 0:</b></p>
             <span class="formula">ax² + bx + c = 0</span>
-            <span class="formula">x₁ + x₂ = −b / a</span>
-            <span class="formula">x₁ · x₂ = c / a</span>
+            <span class="formula">x₁ + x₂ = <span class="frac"><span class="fnum">−b</span><span class="fden">a</span></span></span>
+            <span class="formula">x₁ · x₂ = <span class="frac"><span class="fnum">c</span><span class="fden">a</span></span></span>
             <p style="margin-top:10px">Если a = 1, вторая формула превращается в первую.</p>
             <p><b>Обратная теорема:</b> если два числа в сумме дают −p, а в произведении q, то они и есть корни уравнения x² + px + q = 0. Так корни можно подбирать устно.</p>
           </div>
@@ -330,8 +337,8 @@
             <p style="margin-top:10px">In words: the <span class="term" data-tip="сумма корней" tabindex="0"><b>sum of roots</b></span> equals the second coefficient with the opposite sign, and the <span class="term" data-tip="произведение корней" tabindex="0"><b>product of roots</b></span> equals the constant term.</p>
             <p><b>For a general equation ax² + bx + c = 0:</b></p>
             <span class="formula">ax² + bx + c = 0</span>
-            <span class="formula">x₁ + x₂ = −b / a</span>
-            <span class="formula">x₁ · x₂ = c / a</span>
+            <span class="formula">x₁ + x₂ = <span class="frac"><span class="fnum">−b</span><span class="fden">a</span></span></span>
+            <span class="formula">x₁ · x₂ = <span class="frac"><span class="fnum">c</span><span class="fden">a</span></span></span>
             <p style="margin-top:10px">If a = 1, the second formula becomes the first one.</p>
             <p><b>Converse theorem:</b> if two numbers give −p in sum and q in product, they are the roots of x² + px + q = 0. So roots can be guessed.</p>
           </div>
@@ -426,6 +433,7 @@
           <div class="lang-switch">
             <button type="button" class="lang-btn" id="lang-ru">Русский</button>
             <button type="button" class="lang-btn" id="lang-en">English</button>
+            <button type="button" class="lang-btn word-btn" id="btn-word">Выгрузить в Word</button>
           </div>
           <p class="hint" id="konspekt-hint"></p>
           <div class="konspekt-layout">
@@ -436,7 +444,48 @@
       app.querySelector('#konspekt-start').addEventListener('click', showStart);
       app.querySelector('#lang-ru').addEventListener('click', () => { konspektLang = 'ru'; renderKonspektLang(); });
       app.querySelector('#lang-en').addEventListener('click', () => { konspektLang = 'en'; renderKonspektLang(); });
+      app.querySelector('#btn-word').addEventListener('click', exportKonspektWord);
       renderKonspektLang();
+    }
+
+    function exportKonspektWord() {
+      const isRu = konspektLang === 'ru';
+      const titles = {
+        quad: isRu ? 'Квадратные уравнения' : 'Quadratic equations',
+        vieta: isRu ? 'Теорема Виета' : "Vieta's theorem",
+        brief: isRu ? 'Краткий конспект' : 'Quick notes'
+      };
+      const title = titles[konspektView] || titles.quad;
+      const src = document.querySelector('#konspekt-content');
+      if (!src) return;
+      const clone = src.cloneNode(true);
+      clone.querySelectorAll('.sqrt').forEach(s => {
+        const b = s.querySelector('.rbody');
+        const t = b ? b.textContent.trim() : s.textContent.replace('√', '').trim();
+        s.replaceWith(document.createTextNode('√(' + t + ')'));
+      });
+      clone.querySelectorAll('.frac').forEach(f => {
+        const n = f.querySelector('.fnum');
+        const d = f.querySelector('.fden');
+        const nt = n ? n.textContent.trim() : '';
+        const dt = d ? d.textContent.trim() : '';
+        f.replaceWith(document.createTextNode('(' + nt + ') / (' + dt + ')'));
+      });
+      clone.querySelectorAll('*').forEach(el => {
+        el.removeAttribute('class');
+        el.removeAttribute('id');
+        el.removeAttribute('tabindex');
+        el.removeAttribute('data-tip');
+        el.removeAttribute('style');
+      });
+      const html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="UTF-8"><title>' + title + '</title></head><body><h1>' + title + '</h1>' + clone.innerHTML + '</body></html>';
+      const blob = new Blob(['﻿', html], { type: 'application/msword' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = (isRu ? 'konspekt-' : 'notes-') + konspektView + '.doc';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 200);
     }
 
     const sideRU = `
@@ -454,6 +503,8 @@
       const btnEn = app.querySelector('#lang-en');
       if (btnRu) btnRu.classList.toggle('active', isRu);
       if (btnEn) btnEn.classList.toggle('active', !isRu);
+      const btnWord = app.querySelector('#btn-word');
+      if (btnWord) btnWord.textContent = isRu ? 'Выгрузить в Word' : 'Export to Word';
       const title = app.querySelector('#konspekt-title');
       const hint = app.querySelector('#konspekt-hint');
       const side = app.querySelector('#konspekt-side');
