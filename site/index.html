@@ -105,6 +105,8 @@
     .k-btn:hover, .k-btn:focus-visible { background: #ccdafe; transform: translateY(-1px); }
     .k-btn-brief { background: #fef9c3; color: #854d0e; }
     .k-btn-brief:hover, .k-btn-brief:focus-visible { background: #fde68a; }
+    .k-btn.active { background: #2563eb; color: #fff; }
+    .k-btn-brief.active { background: #b45309; color: #fff; }
     .k-main { min-width: 0; }
     .formula-line { display: block; margin-top: 8px; padding: 10px; background: #fff; border-radius: 8px; font-weight: 700; text-align: center; }
     .fbook { background: #fff; border-radius: 10px; padding: 14px 12px; margin: 10px 0; text-align: center; font-size: 1.3rem; line-height: 2.2; }
@@ -234,7 +236,7 @@
     const cheatRU = cheatHTML;
     const cheatEN = cheatHTML;
 
-    const detailRU = `
+    const detailQuadRU = `
           <h3 id="kvadratnye">1. Квадратные уравнения</h3>
           <div class="theory">
             <p><span class="term" data-tip="quadratic equation" tabindex="0"><b>Квадратное уравнение</b></span> — это <span class="term" data-tip="equation" tabindex="0">уравнение</span> вида:</p>
@@ -262,7 +264,9 @@
             <p><b>Частые ошибки:</b> не теряй знак минус (в уравнении x² − 5x + 6 = 0 свободный член +6, а средний коэффициент −5, а не 5). И не путай: в вопросе «чему равен свободный член?» спрашивают число <b>c</b>, а в вопросе «назовите старший член» — всё выражение целиком, например <b>3x²</b>.</p>
             <p><b>Неполные уравнения:</b> если b = 0 или c = 0, какого-то члена нет. Например, x² − 9 = 0 — нет среднего члена (b = 0), а x² − 4x = 0 — нет свободного члена (c = 0).</p>
             <p><b><span class="term" data-tip="monic equation (a = 1)" tabindex="0">Приведённое уравнение</span>:</b> если старший коэффициент a = 1, уравнение называют приведённым: x² + px + q = 0. Здесь p — это b, а q — это свободный член. Именно для таких уравнений удобнее всего теорема Виета.</p>
-          </div>
+          </div>`;
+
+    const detailVietaRU = `
           <h3 id="vieta">1.2. Теорема Виета</h3>
           <div class="theory">
             <p><span class="term" data-tip="Vieta's theorem" tabindex="0"><b>Теорема Виета</b></span> связывает <span class="term" data-tip="roots" tabindex="0"><b>корни</b></span> квадратного уравнения с его коэффициентами — можно найти или проверить корни без <span class="term" data-tip="discriminant" tabindex="0">дискриминанта</span>.</p>
@@ -285,7 +289,7 @@
             <p><b>Важно:</b> Виет работает, только если у уравнения есть корни (дискриминант D ≥ 0). Если D &lt; 0, корней нет и подбирать нечего.</p>
           </div>`;
 
-    const detailEN = `
+    const detailQuadEN = `
           <h3 id="kvadratnye">1. Quadratic equations</h3>
           <div class="theory">
             <p><span class="term" data-tip="квадратное уравнение" tabindex="0"><b>Quadratic equation</b></span> is an <span class="term" data-tip="уравнение" tabindex="0">equation</span> of the form:</p>
@@ -313,7 +317,9 @@
             <p><b>Common mistakes:</b> do not lose the minus sign (in x² − 5x + 6 = 0 the constant term is +6, and the middle coefficient is −5, not 5).</p>
             <p><b>Incomplete equations:</b> if b = 0 or c = 0, some term is missing. For example, x² − 9 = 0 has no middle term (b = 0), and x² − 4x = 0 has no constant term (c = 0).</p>
             <p><b><span class="term" data-tip="приведённое уравнение" tabindex="0">Monic equation</span>:</b> if the leading coefficient a = 1, the equation is called monic (in Russian «приведённое»): x² + px + q = 0. Here p is b, and q is the constant term. Vieta's theorem is easiest for such equations.</p>
-          </div>
+          </div>`;
+
+    const detailVietaEN = `
           <h3 id="vieta">1.2. Vieta's theorem</h3>
           <div class="theory">
             <p><span class="term" data-tip="теорема Виета" tabindex="0"><b>Vieta's theorem</b></span> connects the <span class="term" data-tip="корни" tabindex="0"><b>roots</b></span> of a quadratic equation with its coefficients — you can find or check roots without the <span class="term" data-tip="дискриминант" tabindex="0">discriminant</span>.</p>
@@ -386,6 +392,7 @@
     let currentQuestion = 0;
     let currentTema = 0;
     let konspektLang = 'ru';
+    let konspektView = 'quad';
 
     function showStart() {
       app.innerHTML = `
@@ -423,10 +430,7 @@
           <p class="hint" id="konspekt-hint"></p>
           <div class="konspekt-layout">
             <aside class="k-side" id="konspekt-side"></aside>
-            <div class="k-main">
-              <div id="konspekt-cheat"></div>
-              <div id="konspekt-detail"></div>
-            </div>
+            <div class="k-main" id="konspekt-content"></div>
           </div>
         </section>`;
       app.querySelector('#konspekt-start').addEventListener('click', showStart);
@@ -436,13 +440,13 @@
     }
 
     const sideRU = `
-      <a class="k-btn" href="#kvadratnye">Квадратные уравнения</a>
-      <a class="k-btn" href="#vieta">Теорема Виета</a>
-      <a class="k-btn k-btn-brief" href="#cheat">Краткий конспект</a>`;
+      <button type="button" class="k-btn" data-view="quad">Квадратные уравнения</button>
+      <button type="button" class="k-btn" data-view="vieta">Теорема Виета</button>
+      <button type="button" class="k-btn k-btn-brief" data-view="brief">Краткий конспект</button>`;
     const sideEN = `
-      <a class="k-btn" href="#kvadratnye">Quadratic equations</a>
-      <a class="k-btn" href="#vieta">Vieta's theorem</a>
-      <a class="k-btn k-btn-brief" href="#cheat">Quick notes</a>`;
+      <button type="button" class="k-btn" data-view="quad">Quadratic equations</button>
+      <button type="button" class="k-btn" data-view="vieta">Vieta's theorem</button>
+      <button type="button" class="k-btn k-btn-brief" data-view="brief">Quick notes</button>`;
 
     function renderKonspektLang() {
       const isRu = konspektLang === 'ru';
@@ -453,18 +457,26 @@
       const title = app.querySelector('#konspekt-title');
       const hint = app.querySelector('#konspekt-hint');
       const side = app.querySelector('#konspekt-side');
-      const cheat = app.querySelector('#konspekt-cheat');
-      const detail = app.querySelector('#konspekt-detail');
+      const content = app.querySelector('#konspekt-content');
       if (title) title.textContent = isRu ? 'Конспект' : 'Notes';
       if (hint) hint.textContent = isRu
         ? 'Наведи мышкой на любое слово — увидишь перевод на английский'
         : 'Hover over any word to see the Russian translation';
-      if (side) side.innerHTML = isRu ? sideRU : sideEN;
-      if (cheat) cheat.innerHTML = isRu ? cheatRU : cheatEN;
-      if (detail) detail.innerHTML = isRu ? detailRU : detailEN;
+      if (side) {
+        side.innerHTML = isRu ? sideRU : sideEN;
+        side.querySelectorAll('[data-view]').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.view === konspektView);
+          btn.addEventListener('click', () => { konspektView = btn.dataset.view; renderKonspektLang(); });
+        });
+      }
+      if (content) {
+        if (konspektView === 'brief') { content.innerHTML = cheatHTML; }
+        else if (konspektView === 'vieta') { content.innerHTML = isRu ? detailVietaRU : detailVietaEN; }
+        else { content.innerHTML = isRu ? detailQuadRU : detailQuadEN; }
+      }
       enableWordTooltips(app.querySelector('#konspekt-side'));
       enableWordTooltips(app.querySelector('#konspekt-hint'));
-      enableWordTooltips(app.querySelector('#konspekt-detail'));
+      enableWordTooltips(app.querySelector('#konspekt-content'));
     }
 
     function startRoma() { currentQuestion = 0; showQuestion(); }
