@@ -448,6 +448,84 @@
       renderKonspektLang();
     }
 
+    function escXml(s) {
+      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function mathNodeToOmml(node) {
+      let out = '';
+      node.childNodes.forEach(ch => {
+        if (ch.nodeType === 3) {
+          if (ch.nodeValue.trim() !== '') {
+            out += '<m:r><m:t xml:space="preserve">' + escXml(ch.nodeValue) + '</m:t></m:r>';
+          }
+        } else if (ch.nodeType === 1) {
+          if (ch.classList && ch.classList.contains('frac')) {
+            const n = ch.querySelector('.fnum');
+            const d = ch.querySelector('.fden');
+            out += '<m:f><m:num>' + (n ? mathNodeToOmml(n) : '') + '</m:num><m:den>' + (d ? mathNodeToOmml(d) : '') + '</m:den></m:f>';
+          } else if (ch.classList && ch.classList.contains('sqrt')) {
+            const body = ch.querySelector('.rbody');
+            out += '<m:rad><m:deg><m:degHide m:val="1"/></m:deg><m:e>' + (body ? mathNodeToOmml(body) : '') + '</m:e></m:rad>';
+          } else if (ch.tagName !== 'BR') {
+            out += mathNodeToOmml(ch);
+          }
+        }
+      });
+      return out;
+    }
+
+    function paraInnerToWord(p) {
+      let out = '';
+      p.childNodes.forEach(ch => {
+        if (ch.nodeType === 3) {
+          out += escXml(ch.nodeValue);
+        } else if (ch.nodeType === 1) {
+          if (ch.tagName === 'BR') { out += '<br/>'; }
+          else { out += escXml(ch.textContent); }
+        }
+      });
+      return out;
+    }
+
+    function blockToWord(el) {
+      const out = [];
+      const tag = el.tagName || '';
+      if (/^H[1-6]$/.test(tag)) {
+        const t = (el.textContent || '').trim();
+        if (t) out.push('<h2>' + escXml(t) + '</h2>');
+      } else if (el.classList && (el.classList.contains('fline') || el.classList.contains('formula'))) {
+        out.push('<m:oMathPara><m:oMath>' + mathNodeToOmml(el) + '</m:oMath></m:oMathPara>');
+      } else if (tag === 'P') {
+        out.push('<p>' + paraInnerToWord(el) + '</p>');
+      } else if (el.classList && el.classList.contains('example')) {
+        let inner = '';
+        el.childNodes.forEach(ch => {
+          if (ch.nodeType === 3) { inner += escXml(ch.nodeValue); }
+          else if (ch.nodeType === 1 && ch.tagName === 'BR') { inner += '<br/>'; }
+          else if (ch.nodeType === 1) { inner += escXml(ch.textContent); }
+        });
+        if (inner.trim() !== '') out.push('<p>' + inner + '</p>');
+      } else if (tag === 'BR') {
+        out.push('<br/>');
+      } else {
+        let hasEl = false;
+        el.childNodes.forEach(ch => {
+          if (ch.nodeType === 3) {
+            if (ch.nodeValue.trim() !== '') out.push('<p>' + escXml(ch.nodeValue.trim()) + '</p>');
+          } else if (ch.nodeType === 1) {
+            hasEl = true;
+            blockToWord(ch).forEach(s => out.push(s));
+          }
+        });
+        if (!hasEl) {
+          const t = (el.textContent || '').trim();
+          if (t) out.push('<p>' + escXml(t) + '</p>');
+        }
+      }
+      return out;
+    }
+
     function exportKonspektWord() {
       const isRu = konspektLang === 'ru';
       const titles = {
@@ -458,27 +536,15 @@
       const title = titles[konspektView] || titles.quad;
       const src = document.querySelector('#konspekt-content');
       if (!src) return;
-      const clone = src.cloneNode(true);
-      clone.querySelectorAll('.sqrt').forEach(s => {
-        const b = s.querySelector('.rbody');
-        const t = b ? b.textContent.trim() : s.textContent.replace('√', '').trim();
-        s.replaceWith(document.createTextNode('√(' + t + ')'));
+      let bodyWord = '';
+      src.childNodes.forEach(ch => {
+        if (ch.nodeType === 3) {
+          if (ch.nodeValue.trim() !== '') bodyWord += '<p>' + escXml(ch.nodeValue.trim()) + '</p>';
+        } else if (ch.nodeType === 1) {
+          bodyWord += blockToWord(ch).join('');
+        }
       });
-      clone.querySelectorAll('.frac').forEach(f => {
-        const n = f.querySelector('.fnum');
-        const d = f.querySelector('.fden');
-        const nt = n ? n.textContent.trim() : '';
-        const dt = d ? d.textContent.trim() : '';
-        f.replaceWith(document.createTextNode('(' + nt + ') / (' + dt + ')'));
-      });
-      clone.querySelectorAll('*').forEach(el => {
-        el.removeAttribute('class');
-        el.removeAttribute('id');
-        el.removeAttribute('tabindex');
-        el.removeAttribute('data-tip');
-        el.removeAttribute('style');
-      });
-      const html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="UTF-8"><title>' + title + '</title></head><body><h1>' + title + '</h1>' + clone.innerHTML + '</body></html>';
+      const html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="UTF-8"><title>' + escXml(title) + '</title></head><body><h1>' + escXml(title) + '</h1>' + bodyWord + '</body></html>';
       const blob = new Blob(['﻿', html], { type: 'application/msword' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
