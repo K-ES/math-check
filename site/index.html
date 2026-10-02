@@ -43,6 +43,13 @@
     .btn-tema:hover, .btn-tema:focus-visible { background: #bbf7d0; }
     .btn-konspekt { background: #fef9c3; color: #854d0e; }
     .btn-konspekt:hover, .btn-konspekt:focus-visible { background: #fde68a; }
+    .choice-ai { margin-top: 14px; display: grid; }
+    .btn-ai { background: #ede9fe; color: #5b21b6; }
+    .btn-ai:hover, .btn-ai:focus-visible { background: #ddd6fe; }
+    .ai-chapters { display: grid; gap: 14px; margin-top: 6px; }
+    .ai-chapter { text-align: left; }
+    .steps { margin: 8px 0 10px; padding-left: 22px; line-height: 1.55; font-size: 1.02rem; }
+    .steps li { margin-bottom: 6px; }
     .toc { background: #f8fafc; border-radius: 12px; padding: 14px 18px; margin: 0 0 16px; text-align: left; line-height: 1.7; font-size: 1rem; }
     .toc b { display: block; margin-bottom: 6px; }
     .toc a { color: #2563eb; text-decoration: none; font-weight: 700; }
@@ -413,11 +420,15 @@
           <div class="choice-tema">
             <button type="button" class="choice-btn btn-tema" data-who="tema">Тёма<small>проценты: задача про театр (учебник)</small></button>
           </div>
+          <div class="choice-ai">
+            <button type="button" class="choice-btn btn-ai" data-who="ai">Создание сайта при помощи ИИ<small>с нуля: виртуалка, Ubuntu, редактор, первый сайт и публикация</small></button>
+          </div>
         </section>`;
       app.querySelectorAll('[data-who]').forEach(button => {
         button.addEventListener('click', () => {
           if (button.dataset.who === 'roma') { startRoma(); }
           else if (button.dataset.who === 'tema') { startTema(); }
+          else if (button.dataset.who === 'ai') { startAi(); }
           else { showKonspekt(); }
         });
       });
@@ -665,6 +676,111 @@
 
     function startRoma() { currentQuestion = 0; showQuestion(); }
     function startTema() { currentTema = 0; showTemaLesson(); }
+
+    // ===== Создание сайта при помощи ИИ: главы-учебник =====
+    let currentAi = 0;
+    const aiChapters = [
+      {
+        title: 'Глава 1. Установка VMware Workstation на Windows',
+        tag: 'ВИРТУАЛКА',
+        subtitle: 'Делаем «второй компьютер» внутри Windows. Позже поставим туда Ubuntu.',
+        theory: `<p><b>1. Зачем нам VMware?</b></p><p>Сайты удобно делать в Linux (Ubuntu): там проще ставить программы для программистов, терминал и ИИ-инструменты. Но сносить Windows ради этого не нужно.</p><p><b>VMware Workstation</b> — это программа, которая создаёт <b>виртуальный компьютер</b> внутри твоего обычного Windows. Это как второй компьютер в окне: его можно ломать, перезапускать и настраивать — с настоящим Windows ничего не случится.</p><p>План всего раздела такой: сейчас ставим VMware → в следующей главе ставим в него Ubuntu → потом редактор кода и ИИ → делаем первый сайт → публикуем его в интернет.</p><p><b>2. Что такое виртуалка простыми словами?</b></p><p>Обычный компьютер: железо → Windows → программы. С виртуалкой: железо → Windows → VMware → Ubuntu → программы для сайта. Ubuntu думает, что она на настоящем компьютере, а на самом деле живёт в файле на диске.</p><p><b>3. Что понадобится?</b></p><p>• Windows 10 / 11, 64-bit.<br>• Оперативка: минимум 8 ГБ, комфортно — 16 ГБ (половину отдадим Ubuntu).<br>• Свободно на диске: 35–40 ГБ.<br>• Интернет для скачивания.<br>• Права администратора.<br>• Включённая виртуализация VT-x / AMD-V (почти всегда уже включена, если нет — включим в BIOS в конце урока).</p><p><b>4. Какую версию качать?</b></p><p>Нужен <b>VMware Workstation Pro</b>. Для личного использования он сейчас бесплатный (после перехода VMware к Broadcom). Качай только с официального сайта <b>support.broadcom.com</b>, раздел VMware Workstation Pro. Не качай с торрентов и «сборок» — там часто вирусы. Понадобится бесплатная регистрация на сайте Broadcom.</p><p><b>5. Установка по шагам</b></p><p>1. Скачай установщик для Windows (файл .exe, ~500 МБ).<br>2. Кликни правой кнопкой → «Запуск от имени администратора».<br>3. Жми Next, прими лицензию.<br>4. Галочки оставь как есть. Пункт Enhanced Keyboard Driver можно оставить включённым.<br>5. На вопрос про лицензию выбери личное использование (Personal Use).<br>6. Нажми Install, дождись конца, нажми Finish.<br>7. Перезагрузи компьютер.</p><p><b>6. Проверка</b></p><p>Открой меню Пуск → VMware Workstation Pro. Программа открылась без ошибок — всё хорошо. Пока ничего создавать не надо — это сделаем в Главе 2, когда будем ставить Ubuntu.</p><p>Если при запуске ошибка про VT-x / «Virtualized Intel VT-x/EPT is disabled»: перезагрузись в BIOS (обычно клавиша Del / F2 / F12 при включении), найди Intel Virtualization Technology / AMD-V / SVM Mode и поставь Enabled, сохрани и выйди.</p><p><b>7. Что дальше?</b></p><p>VMware — это только «пустой корпус». В следующей главе скачаем Ubuntu и поставим её внутрь виртуалки. Дальше всё для сайта будем делать уже в Ubuntu.</p>`,
+        pic: `<div class="formula-pic"><div class="chip">💻 Windows<small>твой компьютер</small></div><div>→</div><div class="chip chip-yellow">📦 VMware<small>виртуалка</small></div><div>→</div><div class="chip chip-green">🐧 Ubuntu<small>поставим в Главе 2</small></div></div><p class="pic-caption">Сейчас делаем средний слой. Ubuntu — в следующей главе</p>`,
+        task: 'Проверь себя: открой VMware Workstation Pro после перезагрузки. Он запустился? Помнишь, сколько места и памяти нужно и что будем ставить в Главе 2?',
+        answer: 'VMware открылся — отлично. Нужно: 8+ ГБ памяти, 35–40 ГБ на диске, Windows 64-bit. В Главе 2 ставим внутрь <b>Ubuntu</b>.'
+      },
+      {
+        title: 'Глава 2. Ставим Ubuntu в виртуалку',
+        tag: 'СКОРО',
+        subtitle: 'Скачаем Ubuntu и установим её внутрь VMware. (Глава в разработке)',
+        theory: `<p>В этой главе скачаем образ Ubuntu, создадим виртуальную машину в VMware, выделим ей память и диск и пройдём установку до рабочего стола.</p><p>Глава в разработке — начни с Главы 1.</p>`,
+        pic: '',
+        task: 'Глава в разработке.',
+        answer: 'Глава в разработке. Сначала пройди Главу 1 про VMware.'
+      },
+      {
+        title: 'Глава 3. Редактор кода и ИИ-помощник',
+        tag: 'СКОРО',
+        subtitle: 'VS Code, браузер и чат с ИИ: наш главный инструмент. (Глава в разработке)',
+        theory: `<p>Поставим в Ubuntu браузер, VS Code и научимся просить ИИ писать и чинить код: какие кнопки жать, что копировать, как проверять результат.</p><p>Глава в разработке.</p>`,
+        pic: '',
+        task: 'Глава в разработке.',
+        answer: 'Глава в разработке.'
+      },
+      {
+        title: 'Глава 4. Первый сайт: HTML и CSS',
+        tag: 'СКОРО',
+        subtitle: 'Попросим ИИ сделать страницу и разберём, из чего она состоит. (Глава в разработке)',
+        theory: `<p>Создадим папку сайта, попросим ИИ сгенерировать первую страницу, откроем её в браузере и поменяем текст и цвета под себя.</p><p>Глава в разработке.</p>`,
+        pic: '',
+        task: 'Глава в разработке.',
+        answer: 'Глава в разработке.'
+      },
+      {
+        title: 'Глава 5. Публикуем сайт в интернет',
+        tag: 'СКОРО',
+        subtitle: 'Выкладываем сайт, чтобы его видели с телефона. (Глава в разработке)',
+        theory: `<p>Разберём самый простой способ выложить сайт в интернет и дать на него ссылку.</p><p>Глава в разработке.</p>`,
+        pic: '',
+        task: 'Глава в разработке.',
+        answer: 'Глава в разработке.'
+      }
+    ];
+
+    function startAi() { showAiMenu(); }
+
+    function showAiMenu() {
+      app.innerHTML = `
+        <section class="card">
+          <p class="progress">Создание сайта при помощи ИИ • ${aiChapters.length} глав</p>
+          <p style="margin: 0 0 12px; text-align:center;"><span class="tag" style="background:#ede9fe;color:#5b21b6;">САЙТ С ИИ / AI SITE</span></p>
+          <h1>Создание сайта при помощи ИИ</h1>
+          <p class="subtitle">Идём по порядку: сначала виртуалка, потом Ubuntu, потом сайт. Начни с Главы 1.</p>
+          <div class="ai-chapters">
+            ${aiChapters.map((ch, i) => `<button type="button" class="choice-btn ai-chapter btn-ai" data-ai="${i}">${i + 1}. ${ch.title}<small>${ch.subtitle}</small></button>`).join('')}
+          </div>
+          <button class="to-start" type="button" data-go="start">← К выбору</button>
+        </section>`;
+      app.querySelectorAll('[data-ai]').forEach(button => {
+        button.addEventListener('click', () => { currentAi = Number(button.dataset.ai); showAiLesson(); });
+      });
+      app.querySelector('[data-go="start"]').addEventListener('click', showStart);
+    }
+
+    function showAiLesson() {
+      const lesson = aiChapters[currentAi];
+      const isLast = currentAi === aiChapters.length - 1;
+      const isFirst = currentAi === 0;
+      app.innerHTML = `
+        <section class="card lesson">
+          <p class="progress">Создание сайта при помощи ИИ • Глава ${currentAi + 1} из ${aiChapters.length}</p>
+          <p style="margin: 0 0 12px; text-align:center;"><span class="tag" style="background:#ede9fe;color:#5b21b6;">${lesson.tag || 'САЙТ С ИИ'}</span></p>
+          <h2>${lesson.title}</h2>
+          <div class="theory">${lesson.theory}</div>
+          ${lesson.pic ? `<div class="pic">${lesson.pic}</div>` : ''}
+          <div class="task-box"><b>Задание:</b> ${lesson.task}</div>
+          <div class="answer-box answer-hidden" id="ai-answer"><b>Ответ:</b> ${lesson.answer}</div>
+          <button class="show-answer" type="button" id="ai-toggle">Показать ответ</button>
+          <div class="nav">
+            <button class="btn-secondary" type="button" id="ai-prev" ${isFirst ? 'disabled style="opacity:.5"' : ''}>← Назад</button>
+            <button class="btn-primary" type="button" id="ai-next">${isLast ? 'К главам' : 'Дальше →'}</button>
+          </div>
+          <button class="to-start" type="button" id="ai-menu">← К главам</button>
+        </section>`;
+      const answerBox = app.querySelector('#ai-answer');
+      const toggleBtn = app.querySelector('#ai-toggle');
+      toggleBtn.addEventListener('click', () => {
+        const hidden = answerBox.classList.toggle('answer-hidden');
+        toggleBtn.textContent = hidden ? 'Показать ответ' : 'Скрыть ответ';
+      });
+      app.querySelector('#ai-prev').addEventListener('click', () => {
+        if (currentAi > 0) { currentAi -= 1; showAiLesson(); }
+      });
+      app.querySelector('#ai-next').addEventListener('click', () => {
+        if (isLast) { showAiMenu(); } else { currentAi += 1; showAiLesson(); }
+      });
+      app.querySelector('#ai-menu').addEventListener('click', showAiMenu);
+    }
 
     function formatQuestion(question) {
       return question.equation
