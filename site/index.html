@@ -139,6 +139,21 @@
     .pi-big { font-size: clamp(4rem, 14vw, 7rem); font-weight: 900; line-height: 1; margin: 6px 0; }
     .pi-sub { font-size: 1.2rem; font-weight: 700; color: #475569; }
     .svg-apples { display: block; width: 100%; max-width: 460px; height: auto; margin: 0 auto; }
+    .logview { min-height: calc(100vh - 48px); padding: 24px; display: flex; flex-direction: column; justify-content: center; }
+    .logview .pic { flex: 1 1 auto; display: flex; flex-direction: column; align-items: stretch; justify-content: center; margin: 0 0 12px; }
+    .logview .svg-apples { max-width: 100%; max-height: 62vh; aspect-ratio: 460 / 130; }
+    .logview .pi-big { font-size: clamp(6rem, 36vh, 15rem); }
+    .logview .log-main { font-size: clamp(3rem, 14vh, 6.5rem); padding: 16px 34px; }
+    .logview .log-side { font-size: 1.3rem; }
+    .logview .log-side b { font-size: 2rem; }
+    .logview .sci-face { font-size: clamp(3.5rem, 14vh, 6.5rem); }
+    .logview .sci-card { font-size: 1.15rem; padding: 18px 14px; }
+    .logview .formula-pic { font-size: 1.35rem; gap: 14px; }
+    .logview .chip { padding: 16px 22px; }
+    .logview .pow-table { font-size: 1.35rem; }
+    .logview .pow-table th, .logview .pow-table td { padding: 12px; }
+    .logview .pic-caption { font-size: 1.05rem; }
+    .logview .nav button { padding: 18px; font-size: 1.15rem; }
     .log-hero { display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; }
     .log-main { font-size: clamp(2.6rem, 9vw, 4rem); font-weight: 900; background: #eef2ff; border-radius: 14px; padding: 10px 22px; }
     .log-side { display: grid; gap: 8px; text-align: left; font-size: 1.05rem; }
@@ -960,7 +975,7 @@
       const lesson = logLessons[currentLog];
       const isFirst = currentLog === 0;
       app.innerHTML = `
-        <section class="card lesson">
+        <section class="card lesson logview">
           <div class="pic">${lesson.pic}</div>
           <div class="nav">
             <button class="btn-secondary" type="button" id="log-prev" ${isFirst ? 'disabled style="opacity:.5"' : ''}>← Назад</button>
