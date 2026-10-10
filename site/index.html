@@ -132,9 +132,31 @@
     .solution-box { background: #eff6ff; border: 2px solid #bfdbfe; border-radius: 12px; padding: 16px 18px; font-size: 1.05rem; line-height: 1.55; margin: 14px 0 0; text-align: left; }
     .fail-title { color: #b91c1c; }
     .win-title { color: #166534; }
+    .tag-log { background: #e0e7ff; color: #3730a3; }
+    .choice-log { margin-top: 14px; display: grid; }
+    .btn-log { background: #e0e7ff; color: #3730a3; }
+    .btn-log:hover, .btn-log:focus-visible { background: #c7d2fe; }
+    .pi-big { font-size: clamp(4rem, 14vw, 7rem); font-weight: 900; line-height: 1; margin: 6px 0; }
+    .pi-sub { font-size: 1.2rem; font-weight: 700; color: #475569; }
+    .apple-row { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; font-size: clamp(2.6rem, 9vw, 4rem); line-height: 1; }
+    .apple-cut { position: relative; display: inline-block; }
+    .apple-cut .left { opacity: .18; }
+    .log-hero { display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; }
+    .log-main { font-size: clamp(2.6rem, 9vw, 4rem); font-weight: 900; background: #eef2ff; border-radius: 14px; padding: 10px 22px; }
+    .log-side { display: grid; gap: 8px; text-align: left; font-size: 1.05rem; }
+    .log-side b { font-size: 1.5rem; }
+    .sci-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .sci-card { background: #f8fafc; border-radius: 12px; padding: 12px 10px; text-align: center; font-size: .95rem; line-height: 1.5; }
+    .sci-face { font-size: 3.2rem; line-height: 1; }
+    .sci-card b { display: block; margin: 6px 0 2px; font-size: 1rem; }
+    .pow-table { width: 100%; border-collapse: collapse; font-size: 1.05rem; line-height: 1.5; background: #fff; border-radius: 12px; overflow: hidden; }
+    .pow-table th, .pow-table td { border: 2px solid #e2e8f0; padding: 8px 10px; text-align: center; }
+    .pow-table th { background: #eef2ff; }
+    .pow-table .hl { background: #fef9c3; font-weight: 800; }
+    .pow-dots { text-align: center; font-weight: 800; color: #64748b; padding: 2px 0; font-size: 1.3rem; line-height: 1; }
     @media (max-width: 760px) { .konspekt-layout { grid-template-columns: 1fr; } .k-side { position: static; } }
     @media (max-width: 640px) { .choice-main { grid-template-columns: 1fr; } }
-    @media (max-width: 420px) { .card { padding: 30px 20px; } .answers { grid-template-columns: 1fr; } .nav { flex-direction: column; } .vs-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 420px) { .card { padding: 30px 20px; } .answers { grid-template-columns: 1fr; } .nav { flex-direction: column; } .vs-grid { grid-template-columns: 1fr; } .sci-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
@@ -420,6 +442,9 @@
           <div class="choice-tema">
             <button type="button" class="choice-btn btn-tema" data-who="tema">Тёма<small>проценты: задача про театр (учебник)</small></button>
           </div>
+          <div class="choice-log">
+            <button type="button" class="choice-btn btn-log" data-who="log">Логарифмы<small>презентация: π, яблоки, log, lg, ln и зачем всё это</small></button>
+          </div>
           <div class="choice-ai">
             <button type="button" class="choice-btn btn-ai" data-who="ai">Создание сайта при помощи ИИ<small>с нуля: виртуалка, Ubuntu, редактор, первый сайт и публикация</small></button>
           </div>
@@ -428,6 +453,7 @@
         button.addEventListener('click', () => {
           if (button.dataset.who === 'roma') { startRoma(); }
           else if (button.dataset.who === 'tema') { startTema(); }
+          else if (button.dataset.who === 'log') { startLog(); }
           else if (button.dataset.who === 'ai') { startAi(); }
           else { showKonspekt(); }
         });
@@ -902,6 +928,97 @@
         if (isLast) { showStart(); } else { currentTema += 1; showTemaLesson(); }
       });
       app.querySelector('#tema-start').addEventListener('click', showStart);
+    }
+
+    // ===== Логарифмы: презентация-знакомство со значками =====
+    let currentLog = 0;
+    const logLessons = [
+      {
+        title: 'Картина 1. Число π',
+        theory: `<p>Это буква <b>π</b> — «пи». В математике это не просто буква, а число.</p><p>Оно примерно равно:</p><span class="formula">π ≈ 3,14</span><p style="margin-top:10px">Смотри на картину внизу и запоминай, как выглядит этот значок.</p>`,
+        pic: `<div class="pi-big">π</div><div class="pi-sub">читается «пи» ≈ 3,14</div><p class="pic-caption">Первая картина — просто значок. Дальше поймём, сколько это</p>`,
+        task: 'Назови вслух: как называется этот значок и сколько это примерно?',
+        answer: 'Это <b>π («пи») ≈ 3,14</b>.'
+      },
+      {
+        title: 'Картина 2. Сколько это — π?',
+        theory: `<p>π — это <b>три целых и ещё маленький кусочек</b>.</p><p>Представь яблоки: три целых яблока и ещё маленький отрезанный кусочек четвёртого — вот сколько π.</p><span class="formula">π ≈ 3 + 0,14</span>`,
+        pic: `<div class="apple-row"><span>🍎</span><span>🍎</span><span>🍎</span><span class="apple-cut" title="маленький кусочек">🍏</span></div><div class="bar-row"><div class="bar-label">π ≈ 3,14: три яблока + кусочек</div><div class="bar-track"><div class="bar-fill bar-green" style="width:32%">🍎 1</div><div class="bar-fill bar-green" style="width:32%">🍎 2</div><div class="bar-fill bar-green" style="width:32%">🍎 3</div><div class="bar-fill bar-orange" style="width:4%">+</div></div></div><p class="pic-caption">Три целых яблока и ещё чуть-чуть отрезано — это и есть π</p>`,
+        task: 'Покажи пальцем: где три целых яблока, а где маленький кусочек?',
+        answer: 'Три 🍎 — это 3. Зелёный хвостик и 🍏 — это <b>0,14, кусочек</b>. Вместе <b>3,14</b>.'
+      },
+      {
+        title: 'Картина 3. Знак логарифма',
+        theory: `<p>Новый значок: <b>log</b> — «логарифм». Это вопрос: <b>«в какую степень возвести?»</b></p><p>Пример: <b>log<sub>2</sub> 8 = 3</b>, потому что 2³ = 8. Двойку надо возвести в степень 3, чтобы получить 8.</p><p>Рядом два брата поменьше: <b>lg</b> — десятичный (всегда про 10), <b>ln</b> — натуральный (про число e ≈ 2,7).</p>`,
+        pic: `<div class="log-hero"><div class="log-main">log</div><div class="log-side"><div><b>lg</b> — десятичный<small> log₁₀, про десятки</small></div><div><b>ln</b> — натуральный<small> про число e ≈ 2,7</small></div></div></div><div class="formula-pic" style="margin-top:10px"><div class="chip">log<sub>2</sub> 8 = 3<small>2³ = 8</small></div><div class="chip chip-yellow">lg 100 = 2<small>10² = 100</small></div><div class="chip chip-green">ln e = 1<small>про e</small></div></div><p class="pic-caption">Большой log — главный значок, lg и ln — его младшие братья</p>`,
+        task: 'Прочитай вслух: log₂ 8 = 3. Что значит тройка?',
+        answer: 'Тройка — это степень: <b>2³ = 8</b>. <b>lg</b> считает степени десятки, <b>ln</b> — степени числа e.'
+      },
+      {
+        title: 'Картина 4. Кто придумал логарифмы?',
+        theory: `<p>Логарифмы придумали очень давно, <b>больше 400 лет назад</b>, когда не было калькуляторов.</p><p><b>Джон Непер</b> из Шотландии издал первые таблицы в 1614 году. А <b>Генри Бриггс</b> из Англии придумал удобные десятичные логарифмы — те самые <b>lg</b>.</p>`,
+        pic: `<div class="sci-grid"><div class="sci-card"><div class="sci-face">🧔🏻‍♂️📜</div><b>Джон Непер</b>1550–1617, Шотландия<br>первые таблицы, 1614</div><div class="sci-card"><div class="sci-face">👨🏻‍🏫🔢</div><b>Генри Бриггс</b>1561–1630, Англия<br>десятичные логарифмы lg</div></div><p class="pic-caption">Два учёных, которые подарили всем таблицы вместо тяжёлого умножения</p>`,
+        task: 'Запомни два имени: кто издал таблицы в 1614 году, а кто придумал lg?',
+        answer: 'Таблицы — <b>Непер (1614)</b>. Удобные десятичные <b>lg — Бриггс</b>.'
+      },
+      {
+        title: 'Картина 5. Зачем? Умножение заменить сложением',
+        theory: `<p>Раньше умножать большие числа было <b>очень долго и легко ошибиться</b>.</p><p>Логарифмы придумали, чтобы <b>заменить умножение сложением</b>:</p><span class="formula">log(a × b) = log a + log b</span><p style="margin-top:10px">Складывать маленькие числа-степени гораздо легче, чем умножать гигантов. Посчитал сумму — и по таблице нашёл ответ.</p>`,
+        pic: `<div class="formula-pic"><div class="chip">✖️ умножение<small>долго и трудно</small></div><div>→</div><div class="chip chip-green">➕ сложение<small>быстро и просто</small></div></div><p class="pic-caption">Волшебство логарифмов: тяжёлое × превращается в лёгкое +</p>`,
+        task: 'Скажи своими словами: что логарифм делает с умножением?',
+        answer: 'Он превращает умножение в сложение: <b>log(a × b) = log a + log b</b>.'
+      },
+      {
+        title: 'Картина 6. Таблица степеней двойки',
+        theory: `<p>Смотри на таблицу. Сверху — первые пять строчек, снизу — две огромные степени.</p><p>Каждая следующая строчка — это умножение на 2. Поэтому вместо огромных чисел можно хранить <b>маленькие степени сверху</b>.</p>`,
+        pic: `<table class="pow-table"><tr><th>степень</th><th>значение</th></tr><tr><td>2<sup>1</sup></td><td>2</td></tr><tr><td>2<sup>2</sup></td><td>4</td></tr><tr><td>2<sup>3</sup></td><td>8</td></tr><tr><td>2<sup>4</sup></td><td>16</td></tr><tr><td>2<sup>5</sup></td><td>32</td></tr></table><div class="pow-dots">⋮</div><table class="pow-table"><tr><th>степень</th><th>значение</th></tr><tr class="hl"><td>2<sup>32</sup></td><td>4 294 967 296</td></tr><tr class="hl"><td>2<sup>33</sup></td><td>8 589 934 592</td></tr></table><p class="pic-caption">Вверху маленькие числа, внизу — гиганты. Запомни жёлтые строчки</p>`,
+        task: 'Прочитай вслух два жёлтых числа. Сколько в них цифр?',
+        answer: '2<sup>32</sup> = <b>4 294 967 296</b> (10 цифр). 2<sup>33</sup> = <b>8 589 934 592</b> (10 цифр).'
+      },
+      {
+        title: 'Картина 7. Перемножаем гигантов',
+        theory: `<p>А теперь перемножим эти два больших числа из таблицы:</p><span class="formula">4 294 967 296 × 8 589 934 592 = ?</span><p style="margin-top:10px">В столбик — это кошмар. А со степенями — легко: <b>показатели просто складываем</b>!</p><span class="formula">2<sup>32</sup> × 2<sup>33</sup> = 2<sup>32+33</sup> = 2<sup>65</sup></span><p style="margin-top:10px">Ответ:</p><span class="formula">2<sup>65</sup> = 36 893 488 147 419 103 232</span>`,
+        pic: `<div class="formula-pic"><div class="chip chip-yellow">2<sup>32</sup><small>4 294 967 296</small></div><div>×</div><div class="chip chip-yellow">2<sup>33</sup><small>8 589 934 592</small></div><div>=</div><div class="chip chip-green">2<sup>65</sup><small>32 + 33 = 65</small></div></div><p class="pic-caption">Вот оно: умножение гигантов заменили сложением 32 + 33</p>`,
+        task: 'Ответь: сколько будет 2³² × 2³³? Почему не надо умножать в столбик?',
+        answer: 'Будет <b>2⁶⁵ = 36 893 488 147 419 103 232</b>. Степени <b>сложили: 32 + 33 = 65</b> — вот и вся «тяжёлая» работа.'
+      }
+    ];
+
+    function startLog() { currentLog = 0; showLogLesson(); }
+
+    function showLogLesson() {
+      const lesson = logLessons[currentLog];
+      const isLast = currentLog === logLessons.length - 1;
+      const isFirst = currentLog === 0;
+      app.innerHTML = `
+        <section class="card lesson">
+          <p class="progress">Логарифмы • Картина ${currentLog + 1} из ${logLessons.length}</p>
+          <p style="margin: 0 0 12px; text-align:center;"><span class="tag tag-log">ЛОГАРИФМЫ</span></p>
+          <h2>${lesson.title}</h2>
+          <div class="theory">${lesson.theory}</div>
+          ${lesson.pic ? `<div class="pic">${lesson.pic}</div>` : ''}
+          <div class="task-box"><b>Задание:</b> ${lesson.task}</div>
+          <div class="answer-box answer-hidden" id="log-answer"><b>Ответ:</b> ${lesson.answer}</div>
+          <button class="show-answer" type="button" id="log-toggle">Показать ответ</button>
+          <div class="nav">
+            <button class="btn-secondary" type="button" id="log-prev" ${isFirst ? 'disabled style="opacity:.5"' : ''}>← Назад</button>
+            <button class="btn-primary" type="button" id="log-next">${isLast ? 'К выбору' : 'Дальше →'}</button>
+          </div>
+          <button class="to-start" type="button" id="log-start">← К выбору</button>
+        </section>`;
+      const answerBox = app.querySelector('#log-answer');
+      const toggleBtn = app.querySelector('#log-toggle');
+      toggleBtn.addEventListener('click', () => {
+        const hidden = answerBox.classList.toggle('answer-hidden');
+        toggleBtn.textContent = hidden ? 'Показать ответ' : 'Скрыть ответ';
+      });
+      app.querySelector('#log-prev').addEventListener('click', () => {
+        if (currentLog > 0) { currentLog -= 1; showLogLesson(); }
+      });
+      app.querySelector('#log-next').addEventListener('click', () => {
+        if (isLast) { showStart(); } else { currentLog += 1; showLogLesson(); }
+      });
+      app.querySelector('#log-start').addEventListener('click', showStart);
     }
 
     showStart();
