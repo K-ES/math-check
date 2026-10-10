@@ -165,8 +165,6 @@
     .logpic { position: relative; }
     .draw-overlay { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
     canvas.draw-overlay { pointer-events: auto; touch-action: none; cursor: crosshair; border-radius: 12px; }
-    .userdel { position: absolute; top: 8px; right: 8px; width: 38px; height: 38px; padding: 0; font-size: 1.05rem; line-height: 1; border-radius: 50%; background: rgba(15,23,42,.75); color: #fff; }
-    .userdel:hover, .userdel:focus-visible { background: #b91c1c; transform: none; }
     .log-hero { display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; }
     .log-main { font-size: clamp(2.6rem, 9vw, 4rem); font-weight: 900; background: #eef2ff; border-radius: 14px; padding: 10px 22px; }
     .log-side { display: grid; gap: 8px; text-align: left; font-size: 1.05rem; }
@@ -990,42 +988,9 @@
     function startLog() { currentLog = 0; showLogLesson(); }
 
     function showLogLesson() {
-      const lesson = logLessons[currentLog];
-      const isFirst = currentLog === 0;
-      const saved = loadDrawing(currentLog);
-      const overlayHTML = saved ? `<img class="draw-overlay" src="${saved}" alt="Мой рисунок"><button class="userdel" type="button" id="log-del" title="Убрать рисунок">✕</button>` : '';
-      app.innerHTML = `
-        <section class="card lesson logview">
-          <div class="pic logpic">${lesson.pic}${overlayHTML}</div>
-          <div class="nav">
-            <button class="btn-secondary" type="button" id="log-prev" ${isFirst ? 'disabled style="opacity:.5"' : ''}>← Назад</button>
-            <button class="btn-primary" type="button" id="log-draw">✏️ Рисовать</button>
-            <button class="btn-primary" type="button" id="log-next">Дальше →</button>
-          </div>
-        </section>`;
-      app.querySelector('#log-prev').addEventListener('click', () => {
-        if (currentLog > 0) { currentLog -= 1; showLogLesson(); }
-      });
-      app.querySelector('#log-next').addEventListener('click', () => {
-        currentLog = (currentLog + 1) % logLessons.length;
-        showLogLesson();
-      });
-      app.querySelector('#log-draw').addEventListener('click', openDraw);
-      const delBtn = app.querySelector('#log-del');
-      if (delBtn) {
-        delBtn.addEventListener('click', () => {
-          try { localStorage.removeItem(drawKey(currentLog)); } catch (e) {}
-          showLogLesson();
-        });
-      }
-    }
-
-    let drawColor = '#172033';
-    let drawWidth = 7;
-    let drawErase = false;
-
-    function openDraw() {
       const idx = currentLog;
+      const lesson = logLessons[idx];
+      const isFirst = idx === 0;
       const saved = loadDrawing(idx);
       app.innerHTML = `
         <section class="card lesson logview">
@@ -1040,16 +1005,16 @@
             <button type="button" class="toolbtn" data-width="3">Тонко</button>
             <button type="button" class="toolbtn" data-width="7">Средне</button>
             <button type="button" class="toolbtn" data-width="14">Толсто</button>
-            <button type="button" class="toolbtn" id="draw-eraser">Ластик</button>
-            <button type="button" class="toolbtn" id="draw-undo">↩ Назад</button>
-            <button type="button" class="toolbtn" id="draw-clear">🧹 Всё стереть</button>
-            <button type="button" class="toolbtn" id="draw-restore">🖼️ Восстановить рисунок</button>
+            <button type="button" class="toolbtn" id="log-eraser">Ластик</button>
+            <button type="button" class="toolbtn" id="log-undo">↩ Назад</button>
+            <button type="button" class="toolbtn" id="log-clear">🧹 Всё стереть</button>
+            <button type="button" class="toolbtn" id="log-restore">🖼️ Восстановить рисунок</button>
+            <button type="button" class="toolbtn" id="log-png">Скачать PNG</button>
           </div>
-          <div class="pic logpic" id="draw-pic">${logLessons[idx].pic}<canvas id="draw-cv" class="draw-overlay"></canvas></div>
+          <div class="pic logpic" id="draw-pic">${lesson.pic}<canvas id="draw-cv" class="draw-overlay"></canvas></div>
           <div class="nav">
-            <button class="btn-secondary" type="button" id="draw-cancel">Отмена</button>
-            <button class="btn-secondary" type="button" id="draw-png">Скачать PNG</button>
-            <button class="btn-primary" type="button" id="draw-save">Сохранить</button>
+            <button class="btn-secondary" type="button" id="log-prev" ${isFirst ? 'disabled style="opacity:.5"' : ''}>← Назад</button>
+            <button class="btn-primary" type="button" id="log-next">Дальше →</button>
           </div>
         </section>`;
       const cv = app.querySelector('#draw-cv');
@@ -1073,6 +1038,14 @@
           if (undoStack.length > 20) undoStack.shift();
         } catch (e) {}
       }
+      let saveTimer = null;
+      function persist() {
+        try { localStorage.setItem(drawKey(idx), cv.toDataURL('image/png')); } catch (e) {}
+      }
+      function scheduleSave() {
+        if (saveTimer) clearTimeout(saveTimer);
+        saveTimer = setTimeout(persist, 400);
+      }
       function refreshTools() {
         app.querySelectorAll('#draw-colors .swatch').forEach(s => {
           s.classList.toggle('active', !drawErase && s.dataset.color === drawColor);
@@ -1080,7 +1053,7 @@
         app.querySelectorAll('[data-width]').forEach(b => {
           b.classList.toggle('active', Number(b.dataset.width) === drawWidth);
         });
-        app.querySelector('#draw-eraser').classList.toggle('active', drawErase);
+        app.querySelector('#log-eraser').classList.toggle('active', drawErase);
       }
       app.querySelectorAll('#draw-colors .swatch').forEach(s => {
         s.addEventListener('click', () => { drawColor = s.dataset.color; drawErase = false; refreshTools(); });
@@ -1088,21 +1061,32 @@
       app.querySelectorAll('[data-width]').forEach(b => {
         b.addEventListener('click', () => { drawWidth = Number(b.dataset.width); refreshTools(); });
       });
-      app.querySelector('#draw-eraser').addEventListener('click', () => { drawErase = !drawErase; refreshTools(); });
-      app.querySelector('#draw-undo').addEventListener('click', () => {
+      app.querySelector('#log-eraser').addEventListener('click', () => { drawErase = !drawErase; refreshTools(); });
+      app.querySelector('#log-undo').addEventListener('click', () => {
         const prev = undoStack.pop();
         if (prev === undefined) return;
         const im = new Image();
-        im.onload = () => { ctx.clearRect(0, 0, cv.width, cv.height); ctx.drawImage(im, 0, 0); };
+        im.onload = () => { ctx.clearRect(0, 0, cv.width, cv.height); ctx.drawImage(im, 0, 0); scheduleSave(); };
         im.src = prev;
       });
-      app.querySelector('#draw-clear').addEventListener('click', () => {
+      app.querySelector('#log-clear').addEventListener('click', () => {
         snapshot();
-        ctx.clearRect(0, 0, cv.width, cv.height);
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, cv.width, cv.height);
+        scheduleSave();
       });
-      app.querySelector('#draw-restore').addEventListener('click', () => {
+      app.querySelector('#log-restore').addEventListener('click', () => {
         try { localStorage.removeItem(drawKey(idx)); } catch (e) {}
         showLogLesson();
+      });
+      app.querySelector('#log-png').addEventListener('click', () => {
+        const a = document.createElement('a');
+        a.href = cv.toDataURL('image/png');
+        a.download = 'risunok-' + (idx + 1) + '.png';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => a.remove(), 200);
       });
       refreshTools();
       let drawing = false;
@@ -1136,23 +1120,31 @@
         ctx.stroke();
         last = p;
       });
-      function stopDraw() { drawing = false; last = null; }
+      function stopDraw() {
+        if (!drawing) return;
+        drawing = false;
+        last = null;
+        scheduleSave();
+      }
       cv.addEventListener('pointerup', stopDraw);
       cv.addEventListener('pointercancel', stopDraw);
-      app.querySelector('#draw-cancel').addEventListener('click', showLogLesson);
-      app.querySelector('#draw-png').addEventListener('click', () => {
-        const a = document.createElement('a');
-        a.href = cv.toDataURL('image/png');
-        a.download = 'risunok-' + (idx + 1) + '.png';
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(() => a.remove(), 200);
-      });
-      app.querySelector('#draw-save').addEventListener('click', () => {
-        try { localStorage.setItem(drawKey(idx), cv.toDataURL('image/png')); } catch (e) {}
+      function goSlide(n) {
+        if (saveTimer) clearTimeout(saveTimer);
+        persist();
+        currentLog = n;
         showLogLesson();
+      }
+      app.querySelector('#log-prev').addEventListener('click', () => {
+        if (idx > 0) goSlide(idx - 1);
+      });
+      app.querySelector('#log-next').addEventListener('click', () => {
+        goSlide((idx + 1) % logLessons.length);
       });
     }
+
+    let drawColor = '#172033';
+    let drawWidth = 7;
+    let drawErase = false;
 
     showStart();
   </script>
