@@ -455,6 +455,15 @@
     let currentTema = 0;
     let konspektLang = 'ru';
     let konspektView = 'quad';
+    let logUndo = null;
+    document.addEventListener('keydown', (e) => {
+      if (!(e.ctrlKey || e.metaKey) || e.shiftKey) return;
+      const k = (e.key || '').toLowerCase();
+      if (k !== 'z' && k !== 'я') return;
+      if (!app.querySelector('#draw-cv')) return;
+      e.preventDefault();
+      if (logUndo) logUndo();
+    });
 
     function showStart() {
       app.innerHTML = `
@@ -981,7 +990,7 @@
         pic: `<table class="pow-table"><tr><th>степень</th><th>значение</th></tr><tr><td>2<sup>1,5</sup></td><td>2,83</td></tr><tr><td>2<sup>2,5</sup></td><td>5,66</td></tr><tr><td>2<sup>3,5</sup></td><td>11,31</td></tr><tr><td>2<sup>4,5</sup></td><td>22,63</td></tr><tr><td>2<sup>5,5</sup></td><td>45,25</td></tr><tr><td>2<sup>10,5</sup></td><td>1 448,15</td></tr><tr><td>2<sup>15,5</sup></td><td>46 340,95001184157855913374</td></tr><tr><td>2<sup>25,5</sup></td><td>47 453 132,81212577644455294578</td></tr><tr><td>2<sup>41</sup></td><td>2 199 023 255 552</td></tr></table>`
       },
       {
-        pic: `<div class="formula-pic"><div class="chip chip-yellow">2 151 243 123<small>2<sup>31,0025</sup></small></div><div>×</div><div class="chip chip-yellow">1 231 231 231<small>2<sup>30,1975</sup></small></div><div>=</div><div class="chip chip-green">≈ 2<sup>61,2</sup><small>31,0025 + 30,1975</small></div></div><div class="fline">2 151 243 123 × 1 231 231 231 ≈ 2 648 677 718 511 574 413</div><p class="pic-caption">Умножение заменили сложением: 31,0025 + 30,1975 = 61,2</p>`
+        pic: `<div class="formula-pic"><div class="chip chip-yellow">2 151 243 123<small>2<sup>31,0025</sup></small></div><div>×</div><div class="chip chip-yellow">1 231 231 231<small>2<sup>30,1975</sup></small></div><div>=</div><div class="chip chip-green">≈ 2<sup>61,2</sup><small>31,0025 + 30,1975</small></div></div><div class="fline">2 151 243 123 × 1 231 231 231 ≈ 2 648 677 718 511 574 413</div><table class="pow-table"><tr><th>степень</th><th>значение</th></tr><tr><td>2<sup>31,0025</sup></td><td>≈ 2 151 243 123</td></tr><tr><td>2<sup>30,1975</sup></td><td>≈ 1 231 231 231</td></tr><tr><td>2<sup>61,2</sup></td><td>≈ 2 648 677 718 511 574 413</td></tr></table><p class="pic-caption">Подсмотрели в таблицу двоек. Умножение заменили сложением: 31,0025 + 30,1975 = 61,2</p>`
       },
       {
         pic: `<div class="formula-pic"><div class="chip chip-yellow">2<sup>32</sup><small>4 294 967 296</small></div><div>×</div><div class="chip chip-yellow">2<sup>33</sup><small>8 589 934 592</small></div><div>=</div><div class="chip chip-green">2<sup>65</sup><small>32 + 33 = 65</small></div></div><p class="pic-caption">Вот оно: умножение гигантов заменили сложением 32 + 33</p>`
@@ -1008,10 +1017,12 @@
             <button type="button" class="swatch" data-color="#2563eb" style="background:#2563eb" aria-label="Синий"></button>
             <button type="button" class="swatch" data-color="#16a34a" style="background:#16a34a" aria-label="Зелёный"></button>
             <button type="button" class="swatch" data-color="#f59e0b" style="background:#f59e0b" aria-label="Оранжевый"></button>
+            <button type="button" class="swatch" data-color="#ec4899" style="background:#ec4899" aria-label="Розовый"></button>
             <button type="button" class="toolbtn" data-width="3">Тонко</button>
             <button type="button" class="toolbtn" data-width="7">Средне</button>
             <button type="button" class="toolbtn" data-width="14">Толсто</button>
             <button type="button" class="toolbtn" id="log-eraser">Ластик</button>
+            <button type="button" class="toolbtn" id="log-rect">▭ Прямоугольник</button>
             <button type="button" class="toolbtn" id="log-undo">↩ Шаг</button>
             <button type="button" class="toolbtn" id="log-clear">Стереть</button>
             <button type="button" class="toolbtn" id="log-restore">🖼️ Восстановить</button>
@@ -1060,6 +1071,7 @@
           b.classList.toggle('active', Number(b.dataset.width) === drawWidth);
         });
         app.querySelector('#log-eraser').classList.toggle('active', drawErase);
+        app.querySelector('#log-rect').classList.toggle('active', drawRectMode);
       }
       app.querySelectorAll('#draw-colors .swatch').forEach(s => {
         s.addEventListener('click', () => { drawColor = s.dataset.color; drawErase = false; refreshTools(); });
@@ -1068,13 +1080,16 @@
         b.addEventListener('click', () => { drawWidth = Number(b.dataset.width); refreshTools(); });
       });
       app.querySelector('#log-eraser').addEventListener('click', () => { drawErase = !drawErase; refreshTools(); });
-      app.querySelector('#log-undo').addEventListener('click', () => {
+      app.querySelector('#log-rect').addEventListener('click', () => { drawRectMode = !drawRectMode; refreshTools(); });
+      function doUndo() {
         const prev = undoStack.pop();
         if (prev === undefined) return;
         const im = new Image();
         im.onload = () => { ctx.clearRect(0, 0, cv.width, cv.height); ctx.drawImage(im, 0, 0); scheduleSave(); };
         im.src = prev;
-      });
+      }
+      logUndo = doUndo;
+      app.querySelector('#log-undo').addEventListener('click', doUndo);
       app.querySelector('#log-clear').addEventListener('click', () => {
         snapshot();
         ctx.globalCompositeOperation = 'source-over';
@@ -1101,12 +1116,41 @@
         const r = cv.getBoundingClientRect();
         return { x: (e.clientX - r.left) * cv.width / r.width, y: (e.clientY - r.top) * cv.height / r.height };
       }
+      let rectStart = null;
+      let baseCanvas = null;
+      function paintRect(a, b) {
+        const x = Math.min(a.x, b.x);
+        const y = Math.min(a.y, b.y);
+        const w = Math.abs(a.x - b.x);
+        const h = Math.abs(a.y - b.y);
+        ctx.globalCompositeOperation = drawErase ? 'destination-out' : 'source-over';
+        if (drawErase) {
+          ctx.fillStyle = '#000000';
+          ctx.fillRect(x, y, w, h);
+        } else {
+          ctx.globalAlpha = 0.35;
+          ctx.fillStyle = drawColor;
+          ctx.fillRect(x, y, w, h);
+          ctx.globalAlpha = 1;
+          ctx.strokeStyle = drawColor;
+          ctx.lineWidth = 2 * pxPerCss;
+          ctx.strokeRect(x, y, w, h);
+        }
+      }
       cv.addEventListener('pointerdown', (e) => {
         e.preventDefault();
         try { cv.setPointerCapture(e.pointerId); } catch (err) {}
         snapshot();
         drawing = true;
         last = evPos(e);
+        if (drawRectMode) {
+          rectStart = last;
+          baseCanvas = document.createElement('canvas');
+          baseCanvas.width = cv.width;
+          baseCanvas.height = cv.height;
+          baseCanvas.getContext('2d').drawImage(cv, 0, 0);
+          return;
+        }
         ctx.beginPath();
         ctx.globalCompositeOperation = drawErase ? 'destination-out' : 'source-over';
         ctx.fillStyle = drawColor;
@@ -1117,6 +1161,15 @@
         if (!drawing) return;
         e.preventDefault();
         const p = evPos(e);
+        if (drawRectMode) {
+          ctx.globalCompositeOperation = 'source-over';
+          ctx.globalAlpha = 1;
+          ctx.clearRect(0, 0, cv.width, cv.height);
+          ctx.drawImage(baseCanvas, 0, 0);
+          paintRect(rectStart, p);
+          last = p;
+          return;
+        }
         ctx.beginPath();
         ctx.globalCompositeOperation = drawErase ? 'destination-out' : 'source-over';
         ctx.strokeStyle = drawColor;
@@ -1130,6 +1183,7 @@
         if (!drawing) return;
         drawing = false;
         last = null;
+        baseCanvas = null;
         scheduleSave();
       }
       cv.addEventListener('pointerup', stopDraw);
@@ -1151,6 +1205,7 @@
     let drawColor = '#172033';
     let drawWidth = 7;
     let drawErase = false;
+    let drawRectMode = false;
 
     showStart();
   </script>
