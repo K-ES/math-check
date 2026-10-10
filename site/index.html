@@ -150,15 +150,17 @@
     .logview .sci-card { font-size: 1.15rem; padding: 18px 14px; }
     .logview .formula-pic { font-size: 1.35rem; gap: 14px; }
     .logview .chip { padding: 16px 22px; }
-    .logview .pow-table { font-size: 1.35rem; }
-    .logview .pow-table th, .logview .pow-table td { padding: 12px; }
+    .logview .pow-table { font-size: 1.15rem; }
+    .logview .pow-table th, .logview .pow-table td { padding: 8px 10px; }
+    .svg-pi { display: block; width: 100%; height: auto; border-radius: 8px; }
+    .logview .svg-pi { max-height: 52vh; aspect-ratio: 3 / 2; }
     .logview .pic-caption { font-size: 1.05rem; }
     .logview .nav button { padding: 18px; font-size: 1.15rem; }
-    .draw-tools { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; align-items: center; margin: 0 0 10px; }
-    .swatch { width: 42px; height: 42px; padding: 0; border-radius: 50%; border: 3px solid rgba(15,23,42,.15); cursor: pointer; }
+    .draw-tools { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; align-items: center; margin: 0 0 8px; }
+    .swatch { width: 30px; height: 30px; padding: 0; border-radius: 50%; border: 3px solid rgba(15,23,42,.15); cursor: pointer; flex: 0 0 auto; }
     .swatch.active { border-color: #172033; }
     .swatch:hover, .swatch:focus-visible { transform: none; }
-    .toolbtn { padding: 10px 16px; font-size: 1rem; background: #e2e8f0; color: #334155; }
+    .toolbtn { padding: 7px 10px; font-size: .85rem; background: #e2e8f0; color: #334155; }
     .toolbtn:hover, .toolbtn:focus-visible { background: #cbd5e1; }
     .toolbtn.active { background: #2563eb; color: #fff; }
     .toolbtn.active:hover, .toolbtn.active:focus-visible { background: #1d4ed8; }
@@ -958,7 +960,7 @@
     let currentLog = 0;
     const logLessons = [
       {
-        pic: `<div class="pi-big">π</div>`
+        pic: `<svg class="svg-pi" viewBox="0 0 600 400" role="img" aria-label="Буква пи, нарисованная краской на фоне неба"><defs><linearGradient id="skypi" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#63b3f2"/><stop offset="1" stop-color="#dff1fd"/></linearGradient></defs><rect x="0" y="0" width="600" height="400" fill="url(#skypi)"/><circle cx="492" cy="76" r="54" fill="#fde047" opacity="0.35"/><circle cx="492" cy="76" r="38" fill="#fde047"/><g fill="#ffffff" opacity="0.92"><ellipse cx="120" cy="92" rx="46" ry="20"/><ellipse cx="160" cy="82" rx="34" ry="18"/><ellipse cx="86" cy="82" rx="26" ry="14"/><ellipse cx="340" cy="60" rx="40" ry="17"/><ellipse cx="374" cy="52" rx="28" ry="14"/></g><g stroke="#334155" stroke-width="4" fill="none" stroke-linecap="round" opacity="0.7"><path d="M430 160 q10 -10 20 0 q10 10 20 0"/><path d="M478 178 q8 -8 16 0 q8 8 16 0"/></g><path d="M0 344 Q150 322 300 340 T600 336 V400 H0 Z" fill="#7ed492"/><path d="M0 360 Q200 344 400 358 T600 354 V400 H0 Z" fill="#5cb877"/><g transform="rotate(-2 300 210)" stroke-linecap="round" fill="none"><path d="M148 132 C 230 120, 310 136, 392 124 S 432 118, 452 122" stroke="#1d4ed8" stroke-width="40" opacity="0.28" transform="translate(7 9)"/><path d="M148 132 C 230 120, 310 136, 392 124 S 432 118, 452 122" stroke="#ffffff" stroke-width="32"/><path d="M228 130 C 220 185, 236 245, 210 306" stroke="#1d4ed8" stroke-width="40" opacity="0.28" transform="translate(7 9)"/><path d="M228 130 C 220 185, 236 245, 210 306" stroke="#ffffff" stroke-width="32"/><path d="M376 128 C 390 185, 372 250, 394 306" stroke="#1d4ed8" stroke-width="40" opacity="0.28" transform="translate(7 9)"/><path d="M376 128 C 390 185, 372 250, 394 306" stroke="#ffffff" stroke-width="32"/></g><g fill="#ffffff"><circle cx="210" cy="318" r="7"/><circle cx="394" cy="318" r="6"/><circle cx="300" cy="140" r="5"/></g></svg>`
       },
       {
         pic: `<svg class="svg-apples" viewBox="0 0 460 130" role="img" aria-label="Три яблока и маленький кусочек"><title>Три разных яблока и кусочек</title><g><ellipse cx="55" cy="114" rx="28" ry="5" fill="#0f172a" opacity="0.1"/><path d="M55 30 Q57 17 67 9" stroke="#92400e" stroke-width="6" fill="none" stroke-linecap="round"/><ellipse cx="78" cy="15" rx="13" ry="6.5" fill="#22c55e" transform="rotate(-28 78 15)"/><path d="M55 34 C47 24 25 22 19 44 C13 66 31 100 55 102 C79 100 97 66 91 44 C85 22 63 24 55 34 Z" fill="#e63946" stroke="#b91c1c" stroke-width="3" stroke-linejoin="round"/><ellipse cx="37" cy="62" rx="7" ry="13" fill="#ffffff" opacity="0.5" transform="rotate(-12 37 62)"/></g><g transform="translate(115,0)"><ellipse cx="55" cy="114" rx="28" ry="5" fill="#0f172a" opacity="0.1"/><path d="M55 28 Q52 15 42 8" stroke="#92400e" stroke-width="6" fill="none" stroke-linecap="round"/><ellipse cx="31" cy="14" rx="13" ry="6.5" fill="#16a34a" transform="rotate(28 31 14)"/><path d="M55 32 C63 22 85 22 91 44 C97 66 79 102 55 104 C31 102 13 66 19 44 C25 22 47 22 55 32 Z" fill="#84cc16" stroke="#3f6212" stroke-width="3" stroke-linejoin="round"/><ellipse cx="73" cy="62" rx="7" ry="13" fill="#ffffff" opacity="0.55" transform="rotate(12 73 62)"/><circle cx="44" cy="80" r="2.5" fill="#3f6212" opacity="0.5"/><circle cx="50" cy="86" r="2" fill="#3f6212" opacity="0.4"/></g><g transform="translate(230,0)"><ellipse cx="55" cy="114" rx="28" ry="5" fill="#0f172a" opacity="0.1"/><path d="M55 30 L55 12" stroke="#92400e" stroke-width="6" stroke-linecap="round"/><ellipse cx="72" cy="18" rx="11" ry="6" fill="#22c55e" transform="rotate(-20 72 18)"/><path d="M55 36 C45 26 24 28 20 48 C16 70 34 100 55 101 C76 100 94 70 90 48 C86 28 65 26 55 36 Z" fill="#fbbf24" stroke="#b45309" stroke-width="3" stroke-linejoin="round"/><circle cx="70" cy="68" r="14" fill="#ef4444" opacity="0.5"/><ellipse cx="38" cy="60" rx="6" ry="11" fill="#ffffff" opacity="0.55" transform="rotate(-12 38 60)"/></g><g transform="translate(345,8)"><ellipse cx="55" cy="112" rx="24" ry="4.5" fill="#0f172a" opacity="0.1"/><path d="M25 104 Q12 55 48 18 L72 34 Q40 60 38 104 Z" fill="#fef3c7" stroke="#d97706" stroke-width="3" stroke-linejoin="round"/><path d="M25 104 Q12 55 48 18 L53 21 Q18 57 30 104 Z" fill="#e63946"/><ellipse cx="42" cy="66" rx="3.5" ry="5" fill="#78350f" transform="rotate(15 42 66)"/><ellipse cx="48" cy="78" rx="3.5" ry="5" fill="#78350f" transform="rotate(15 48 78)"/></g></svg>`
@@ -973,7 +975,7 @@
         pic: `<div class="formula-pic"><div class="chip">✖️ умножение<small>долго и трудно</small></div><div>→</div><div class="chip chip-green">➕ сложение<small>быстро и просто</small></div></div><p class="pic-caption">Волшебство логарифмов: тяжёлое × превращается в лёгкое +</p>`
       },
       {
-        pic: `<table class="pow-table"><tr><th>степень</th><th>значение</th></tr><tr><td>2<sup>1</sup></td><td>2</td></tr><tr><td>2<sup>2</sup></td><td>4</td></tr><tr><td>2<sup>3</sup></td><td>8</td></tr><tr><td>2<sup>4</sup></td><td>16</td></tr><tr><td>2<sup>5</sup></td><td>32</td></tr></table><div class="pow-dots">⋮</div><table class="pow-table"><tr><th>степень</th><th>значение</th></tr><tr class="hl"><td>2<sup>32</sup></td><td>4 294 967 296</td></tr><tr class="hl"><td>2<sup>33</sup></td><td>8 589 934 592</td></tr></table><p class="pic-caption">Вверху маленькие числа, внизу — гиганты. Запомни жёлтые строчки</p>`
+        pic: `<table class="pow-table"><tr><th>степень</th><th>значение</th></tr><tr><td>2<sup>1</sup></td><td>2</td></tr><tr><td>2<sup>2</sup></td><td>4</td></tr><tr><td>2<sup>3</sup></td><td>8</td></tr><tr><td>2<sup>4</sup></td><td>16</td></tr><tr><td>2<sup>5</sup></td><td>32</td></tr><tr><td>2<sup>10</sup></td><td>1 024</td></tr><tr><td>2<sup>15</sup></td><td>32 768</td></tr><tr><td>2<sup>25</sup></td><td>33 554 432</td></tr></table>`
       },
       {
         pic: `<div class="formula-pic"><div class="chip chip-yellow">2<sup>32</sup><small>4 294 967 296</small></div><div>×</div><div class="chip chip-yellow">2<sup>33</sup><small>8 589 934 592</small></div><div>=</div><div class="chip chip-green">2<sup>65</sup><small>32 + 33 = 65</small></div></div><p class="pic-caption">Вот оно: умножение гигантов заменили сложением 32 + 33</p>`
@@ -1000,16 +1002,14 @@
             <button type="button" class="swatch" data-color="#2563eb" style="background:#2563eb" aria-label="Синий"></button>
             <button type="button" class="swatch" data-color="#16a34a" style="background:#16a34a" aria-label="Зелёный"></button>
             <button type="button" class="swatch" data-color="#f59e0b" style="background:#f59e0b" aria-label="Оранжевый"></button>
-          </div>
-          <div class="draw-tools">
             <button type="button" class="toolbtn" data-width="3">Тонко</button>
             <button type="button" class="toolbtn" data-width="7">Средне</button>
             <button type="button" class="toolbtn" data-width="14">Толсто</button>
             <button type="button" class="toolbtn" id="log-eraser">Ластик</button>
-            <button type="button" class="toolbtn" id="log-undo">↩ Назад</button>
-            <button type="button" class="toolbtn" id="log-clear">🧹 Всё стереть</button>
-            <button type="button" class="toolbtn" id="log-restore">🖼️ Восстановить рисунок</button>
-            <button type="button" class="toolbtn" id="log-png">Скачать PNG</button>
+            <button type="button" class="toolbtn" id="log-undo">↩ Шаг</button>
+            <button type="button" class="toolbtn" id="log-clear">Стереть</button>
+            <button type="button" class="toolbtn" id="log-restore">🖼️ Восстановить</button>
+            <button type="button" class="toolbtn" id="log-png">PNG</button>
           </div>
           <div class="pic logpic" id="draw-pic">${lesson.pic}<canvas id="draw-cv" class="draw-overlay"></canvas></div>
           <div class="nav">
