@@ -154,6 +154,19 @@
     .logview .pow-table th, .logview .pow-table td { padding: 12px; }
     .logview .pic-caption { font-size: 1.05rem; }
     .logview .nav button { padding: 18px; font-size: 1.15rem; }
+    .draw-tools { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; align-items: center; margin: 0 0 10px; }
+    .swatch { width: 42px; height: 42px; padding: 0; border-radius: 50%; border: 3px solid rgba(15,23,42,.15); cursor: pointer; }
+    .swatch.active { border-color: #172033; }
+    .swatch:hover, .swatch:focus-visible { transform: none; }
+    .toolbtn { padding: 10px 16px; font-size: 1rem; background: #e2e8f0; color: #334155; }
+    .toolbtn:hover, .toolbtn:focus-visible { background: #cbd5e1; }
+    .toolbtn.active { background: #2563eb; color: #fff; }
+    .toolbtn.active:hover, .toolbtn.active:focus-visible { background: #1d4ed8; }
+    .draw-canvas { display: block; width: 100%; height: auto; max-height: 52vh; aspect-ratio: 1000 / 620; background: #fff; border-radius: 8px; touch-action: none; cursor: crosshair; }
+    .userpic { position: relative; }
+    .userpic-img { display: block; width: 100%; height: auto; border-radius: 8px; background: #fff; }
+    .userdel { position: absolute; top: 8px; right: 8px; width: 38px; height: 38px; padding: 0; font-size: 1.05rem; line-height: 1; border-radius: 50%; background: rgba(15,23,42,.75); color: #fff; }
+    .userdel:hover, .userdel:focus-visible { background: #b91c1c; transform: none; }
     .log-hero { display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; }
     .log-main { font-size: clamp(2.6rem, 9vw, 4rem); font-weight: 900; background: #eef2ff; border-radius: 14px; padding: 10px 22px; }
     .log-side { display: grid; gap: 8px; text-align: left; font-size: 1.05rem; }
@@ -456,7 +469,7 @@
             <button type="button" class="choice-btn btn-tema" data-who="tema">Тёма<small>проценты: задача про театр (учебник)</small></button>
           </div>
           <div class="choice-log">
-            <button type="button" class="choice-btn btn-log" data-who="log">Логарифмы<small>презентация: π, яблоки, log, lg, ln и зачем всё это</small></button>
+            <button type="button" class="choice-btn btn-log" data-who="log">Логарифмы<small>только картинки + можно рисовать своё</small></button>
           </div>
           <div class="choice-ai">
             <button type="button" class="choice-btn btn-ai" data-who="ai">Создание сайта при помощи ИИ<small>с нуля: виртуалка, Ubuntu, редактор, первый сайт и публикация</small></button>
@@ -969,16 +982,24 @@
       }
     ];
 
+    function drawKey(i) { return 'mathcheck-logdraw-v1-' + i; }
+    function loadDrawing(i) {
+      try { return localStorage.getItem(drawKey(i)); } catch (e) { return null; }
+    }
+
     function startLog() { currentLog = 0; showLogLesson(); }
 
     function showLogLesson() {
       const lesson = logLessons[currentLog];
       const isFirst = currentLog === 0;
+      const saved = loadDrawing(currentLog);
       app.innerHTML = `
         <section class="card lesson logview">
           <div class="pic">${lesson.pic}</div>
+          ${saved ? `<div class="pic userpic"><img class="userpic-img" src="${saved}" alt="Мой рисунок"><button class="userdel" type="button" id="log-del" title="Убрать рисунок">✕</button></div>` : ''}
           <div class="nav">
             <button class="btn-secondary" type="button" id="log-prev" ${isFirst ? 'disabled style="opacity:.5"' : ''}>← Назад</button>
+            <button class="btn-primary" type="button" id="log-draw">✏️ Рисовать</button>
             <button class="btn-primary" type="button" id="log-next">Дальше →</button>
           </div>
         </section>`;
@@ -987,6 +1008,139 @@
       });
       app.querySelector('#log-next').addEventListener('click', () => {
         currentLog = (currentLog + 1) % logLessons.length;
+        showLogLesson();
+      });
+      app.querySelector('#log-draw').addEventListener('click', openDraw);
+      const delBtn = app.querySelector('#log-del');
+      if (delBtn) {
+        delBtn.addEventListener('click', () => {
+          try { localStorage.removeItem(drawKey(currentLog)); } catch (e) {}
+          showLogLesson();
+        });
+      }
+    }
+
+    let drawColor = '#172033';
+    let drawWidth = 7;
+    let drawErase = false;
+
+    function openDraw() {
+      const idx = currentLog;
+      const saved = loadDrawing(idx);
+      app.innerHTML = `
+        <section class="card lesson logview">
+          <div class="draw-tools" id="draw-colors">
+            <button type="button" class="swatch" data-color="#172033" style="background:#172033" aria-label="Чёрный"></button>
+            <button type="button" class="swatch" data-color="#e63946" style="background:#e63946" aria-label="Красный"></button>
+            <button type="button" class="swatch" data-color="#2563eb" style="background:#2563eb" aria-label="Синий"></button>
+            <button type="button" class="swatch" data-color="#16a34a" style="background:#16a34a" aria-label="Зелёный"></button>
+            <button type="button" class="swatch" data-color="#f59e0b" style="background:#f59e0b" aria-label="Оранжевый"></button>
+          </div>
+          <div class="draw-tools">
+            <button type="button" class="toolbtn" data-width="3">Тонко</button>
+            <button type="button" class="toolbtn" data-width="7">Средне</button>
+            <button type="button" class="toolbtn" data-width="14">Толсто</button>
+            <button type="button" class="toolbtn" id="draw-eraser">Ластик</button>
+            <button type="button" class="toolbtn" id="draw-undo">↩ Назад</button>
+            <button type="button" class="toolbtn" id="draw-clear">🧹 Всё стереть</button>
+          </div>
+          <div class="pic"><canvas id="draw-cv" class="draw-canvas" width="1000" height="620"></canvas></div>
+          <div class="nav">
+            <button class="btn-secondary" type="button" id="draw-cancel">Отмена</button>
+            <button class="btn-secondary" type="button" id="draw-png">Скачать PNG</button>
+            <button class="btn-primary" type="button" id="draw-save">Сохранить</button>
+          </div>
+        </section>`;
+      const cv = app.querySelector('#draw-cv');
+      const ctx = cv.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, cv.width, cv.height);
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      if (saved) {
+        const im = new Image();
+        im.onload = () => { ctx.drawImage(im, 0, 0, cv.width, cv.height); };
+        im.src = saved;
+      }
+      const undoStack = [];
+      function snapshot() {
+        try {
+          undoStack.push(cv.toDataURL('image/png'));
+          if (undoStack.length > 20) undoStack.shift();
+        } catch (e) {}
+      }
+      function refreshTools() {
+        app.querySelectorAll('#draw-colors .swatch').forEach(s => {
+          s.classList.toggle('active', !drawErase && s.dataset.color === drawColor);
+        });
+        app.querySelectorAll('[data-width]').forEach(b => {
+          b.classList.toggle('active', Number(b.dataset.width) === drawWidth);
+        });
+        app.querySelector('#draw-eraser').classList.toggle('active', drawErase);
+      }
+      app.querySelectorAll('#draw-colors .swatch').forEach(s => {
+        s.addEventListener('click', () => { drawColor = s.dataset.color; drawErase = false; refreshTools(); });
+      });
+      app.querySelectorAll('[data-width]').forEach(b => {
+        b.addEventListener('click', () => { drawWidth = Number(b.dataset.width); refreshTools(); });
+      });
+      app.querySelector('#draw-eraser').addEventListener('click', () => { drawErase = !drawErase; refreshTools(); });
+      app.querySelector('#draw-undo').addEventListener('click', () => {
+        const prev = undoStack.pop();
+        if (prev === undefined) return;
+        const im = new Image();
+        im.onload = () => { ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, cv.width, cv.height); ctx.drawImage(im, 0, 0); };
+        im.src = prev;
+      });
+      app.querySelector('#draw-clear').addEventListener('click', () => {
+        snapshot();
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, cv.width, cv.height);
+      });
+      refreshTools();
+      let drawing = false;
+      let last = null;
+      function evPos(e) {
+        const r = cv.getBoundingClientRect();
+        return { x: (e.clientX - r.left) * cv.width / r.width, y: (e.clientY - r.top) * cv.height / r.height };
+      }
+      cv.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        try { cv.setPointerCapture(e.pointerId); } catch (err) {}
+        snapshot();
+        drawing = true;
+        last = evPos(e);
+        ctx.beginPath();
+        ctx.fillStyle = drawErase ? '#ffffff' : drawColor;
+        ctx.arc(last.x, last.y, drawWidth / 2, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      cv.addEventListener('pointermove', (e) => {
+        if (!drawing) return;
+        e.preventDefault();
+        const p = evPos(e);
+        ctx.beginPath();
+        ctx.strokeStyle = drawErase ? '#ffffff' : drawColor;
+        ctx.lineWidth = drawWidth;
+        ctx.moveTo(last.x, last.y);
+        ctx.lineTo(p.x, p.y);
+        ctx.stroke();
+        last = p;
+      });
+      function stopDraw() { drawing = false; last = null; }
+      cv.addEventListener('pointerup', stopDraw);
+      cv.addEventListener('pointercancel', stopDraw);
+      app.querySelector('#draw-cancel').addEventListener('click', showLogLesson);
+      app.querySelector('#draw-png').addEventListener('click', () => {
+        const a = document.createElement('a');
+        a.href = cv.toDataURL('image/png');
+        a.download = 'risunok-' + (idx + 1) + '.png';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => a.remove(), 200);
+      });
+      app.querySelector('#draw-save').addEventListener('click', () => {
+        try { localStorage.setItem(drawKey(idx), cv.toDataURL('image/png')); } catch (e) {}
         showLogLesson();
       });
     }
