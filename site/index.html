@@ -162,9 +162,9 @@
     .toolbtn:hover, .toolbtn:focus-visible { background: #cbd5e1; }
     .toolbtn.active { background: #2563eb; color: #fff; }
     .toolbtn.active:hover, .toolbtn.active:focus-visible { background: #1d4ed8; }
-    .draw-canvas { display: block; width: 100%; height: auto; max-height: 52vh; aspect-ratio: 1000 / 620; background: #fff; border-radius: 8px; touch-action: none; cursor: crosshair; }
-    .userpic { position: relative; }
-    .userpic-img { display: block; width: 100%; height: auto; border-radius: 8px; background: #fff; }
+    .logpic { position: relative; }
+    .draw-overlay { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+    canvas.draw-overlay { pointer-events: auto; touch-action: none; cursor: crosshair; border-radius: 12px; }
     .userdel { position: absolute; top: 8px; right: 8px; width: 38px; height: 38px; padding: 0; font-size: 1.05rem; line-height: 1; border-radius: 50%; background: rgba(15,23,42,.75); color: #fff; }
     .userdel:hover, .userdel:focus-visible { background: #b91c1c; transform: none; }
     .log-hero { display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; }
@@ -982,7 +982,7 @@
       }
     ];
 
-    function drawKey(i) { return 'mathcheck-logdraw-v1-' + i; }
+    function drawKey(i) { return 'mathcheck-logdraw-v2-' + i; }
     function loadDrawing(i) {
       try { return localStorage.getItem(drawKey(i)); } catch (e) { return null; }
     }
@@ -993,10 +993,10 @@
       const lesson = logLessons[currentLog];
       const isFirst = currentLog === 0;
       const saved = loadDrawing(currentLog);
+      const overlayHTML = saved ? `<img class="draw-overlay" src="${saved}" alt="Мой рисунок"><button class="userdel" type="button" id="log-del" title="Убрать рисунок">✕</button>` : '';
       app.innerHTML = `
         <section class="card lesson logview">
-          <div class="pic">${lesson.pic}</div>
-          ${saved ? `<div class="pic userpic"><img class="userpic-img" src="${saved}" alt="Мой рисунок"><button class="userdel" type="button" id="log-del" title="Убрать рисунок">✕</button></div>` : ''}
+          <div class="pic logpic">${lesson.pic}${overlayHTML}</div>
           <div class="nav">
             <button class="btn-secondary" type="button" id="log-prev" ${isFirst ? 'disabled style="opacity:.5"' : ''}>← Назад</button>
             <button class="btn-primary" type="button" id="log-draw">✏️ Рисовать</button>
@@ -1043,8 +1043,9 @@
             <button type="button" class="toolbtn" id="draw-eraser">Ластик</button>
             <button type="button" class="toolbtn" id="draw-undo">↩ Назад</button>
             <button type="button" class="toolbtn" id="draw-clear">🧹 Всё стереть</button>
+            <button type="button" class="toolbtn" id="draw-restore">🖼️ Восстановить рисунок</button>
           </div>
-          <div class="pic"><canvas id="draw-cv" class="draw-canvas" width="1000" height="620"></canvas></div>
+          <div class="pic logpic" id="draw-pic">${logLessons[idx].pic}<canvas id="draw-cv" class="draw-overlay"></canvas></div>
           <div class="nav">
             <button class="btn-secondary" type="button" id="draw-cancel">Отмена</button>
             <button class="btn-secondary" type="button" id="draw-png">Скачать PNG</button>
@@ -1053,8 +1054,11 @@
         </section>`;
       const cv = app.querySelector('#draw-cv');
       const ctx = cv.getContext('2d');
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, cv.width, cv.height);
+      const picBox = app.querySelector('#draw-pic');
+      const boxR = picBox.getBoundingClientRect();
+      cv.width = 1200;
+      cv.height = Math.max(200, Math.round(1200 * boxR.height / Math.max(1, boxR.width)));
+      const pxPerCss = 1200 / Math.max(1, boxR.width);
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
       if (saved) {
@@ -1089,13 +1093,16 @@
         const prev = undoStack.pop();
         if (prev === undefined) return;
         const im = new Image();
-        im.onload = () => { ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, cv.width, cv.height); ctx.drawImage(im, 0, 0); };
+        im.onload = () => { ctx.clearRect(0, 0, cv.width, cv.height); ctx.drawImage(im, 0, 0); };
         im.src = prev;
       });
       app.querySelector('#draw-clear').addEventListener('click', () => {
         snapshot();
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, cv.width, cv.height);
+        ctx.clearRect(0, 0, cv.width, cv.height);
+      });
+      app.querySelector('#draw-restore').addEventListener('click', () => {
+        try { localStorage.removeItem(drawKey(idx)); } catch (e) {}
+        showLogLesson();
       });
       refreshTools();
       let drawing = false;
@@ -1111,8 +1118,9 @@
         drawing = true;
         last = evPos(e);
         ctx.beginPath();
-        ctx.fillStyle = drawErase ? '#ffffff' : drawColor;
-        ctx.arc(last.x, last.y, drawWidth / 2, 0, Math.PI * 2);
+        ctx.globalCompositeOperation = drawErase ? 'destination-out' : 'source-over';
+        ctx.fillStyle = drawColor;
+        ctx.arc(last.x, last.y, (drawWidth * pxPerCss) / 2, 0, Math.PI * 2);
         ctx.fill();
       });
       cv.addEventListener('pointermove', (e) => {
@@ -1120,8 +1128,9 @@
         e.preventDefault();
         const p = evPos(e);
         ctx.beginPath();
-        ctx.strokeStyle = drawErase ? '#ffffff' : drawColor;
-        ctx.lineWidth = drawWidth;
+        ctx.globalCompositeOperation = drawErase ? 'destination-out' : 'source-over';
+        ctx.strokeStyle = drawColor;
+        ctx.lineWidth = drawWidth * pxPerCss;
         ctx.moveTo(last.x, last.y);
         ctx.lineTo(p.x, p.y);
         ctx.stroke();
